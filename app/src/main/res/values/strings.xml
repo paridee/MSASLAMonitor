@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">MSA SLA Monitor</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="wifiPower">WiFi Power</string>
+    <string name="radioPower">Cellular power</string>
+    <string name="cpuPower">Cpu power</string>
+    <string name="wifiIdle">WiFi Idle Power</string>
+    <string name="radioIdle">Cellular Idle Power</string>
+</resources>

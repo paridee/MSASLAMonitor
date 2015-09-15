@@ -70,9 +70,10 @@ public class KPIElaborator extends AsyncTask{
         int messagesize =   json.length();//TODO +httpheader
         System.out.println("KPIELABORATOR calcolo dati da trasmettere ");
         double localtime    =   subject.calculateHeuristicTime();   //todo calculate local time (heuristic)
-        double txtime   =   ((messagesize*8)/(1024*1024))/data.bandwidthUL;//TODO speedtest uplink!
-        double maxlocaltime=   myOffloadingFunction.getLocalComputationTimeForOffloadingTime(txtime);
-        System.out.println("KPIELABORATOR  valori trovati: localtime "+localtime+" txtime "+txtime+" maxlocaltime "+maxlocaltime);
+        double txtime               =   ((messagesize*8)/(1024*1024))/data.bandwidthUL;//TODO speedtest uplink!
+        double maxlocaltime         =   myOffloadingFunction.getLocalComputationTimeForOffloadingTime(txtime);
+        double sizeforoffloading    =   (maxlocaltime*data.bandwidthUL)/8;
+        System.out.println("KPIELABORATOR  valori trovati: localtime "+localtime+" txtime "+txtime+" per lunghezza messaggio "+messagesize+" maxlocaltime "+maxlocaltime+" maximum data size for offloading "+sizeforoffloading+" MB");
         if(localtime>maxlocaltime){
             //TODO OFFLOAD
             System.out.println("KPIELABORATOR  vado in offload");

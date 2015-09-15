@@ -3,12 +3,14 @@ package com.alfaprojects.paride.it.msaslamonitor;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
 
 import com.google.gson.Gson;
 
 public class TaskInstance extends Task {
 	public	HashMap<Integer,Double>		heurstics =	new HashMap<Integer,Double>();
-	int[]								keys	=	new int[5];
+	int[]								keys	=	new int[20];
 	private Date 						startDate;
 	private Date 						endDate;
 	private Date						expirationDate;
@@ -37,6 +39,17 @@ public class TaskInstance extends Task {
 
 	public void addToRawData(String key, double[] values){
 		this.rawdata.put(key, values);
+	}
+
+	public int getDataSize(){
+		int tempvalue	=	0;
+		Set keyset	= this.rawdata.keySet();
+		Iterator<String> iterator	=	keyset.iterator();
+		while(iterator.hasNext()){
+			String key	=	iterator.next();
+			tempvalue	=	tempvalue	+	rawdata.get(key).length;
+		}
+		return tempvalue;
 	}
 
 	public Date getExpirationDate() {
@@ -77,8 +90,9 @@ public class TaskInstance extends Task {
 		return newtask;
 	}
 	public void setHeuristic(String key,int maxnumberofelements,double meanvalue){ //poniamo che ho 1 solo item nell hashmap dei dati
-		for(int i=5;i>0;i--){
-			int k		=	maxnumberofelements/i;
+		int n	=	20;
+		for(int i=20;i>0;i--){
+			int k		=	i*(maxnumberofelements/n);
 			double[] testdata2	=	new double[k];
 			TaskInstance newTask	=	new TaskInstance(this.getId(),this.getFormula(),this.getExpiration(),this.getThreshold(),this.startDate,this.endDate);
 			for(int j=0;j<k;j++) {
@@ -123,7 +137,8 @@ public class TaskInstance extends Task {
 	public double calculateHeuristicTime() {
 		int size	=	this.rawdata.size();
 		if(size>=keys[4]){
-			return heurstics.get(keys[4]);
+			System.out.println("TaskInstance per il singolo elemento ci metto "+heurstics.get(keys[4]) +" ho numero di elementi: "+size);
+			return (heurstics.get(keys[4])*this.getDataSize());
 		}
 		double returnvalue	=	heurstics.get(keys[0]);;
 		for(int i=0;i<5;i++){
@@ -132,6 +147,7 @@ public class TaskInstance extends Task {
 			}
 			returnvalue	=	heurstics.get(keys[i]);
 		}
-		return returnvalue;
+		System.out.println("TaskInstance per il singolo elemento ci metto " + returnvalue + " ho numero di elementi: " + size);
+		return (returnvalue*this.getDataSize());
 	}
 }

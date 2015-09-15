@@ -124,8 +124,8 @@ public class MainDashboard extends ActionBarActivity {
 
                     //TODO REMOVE TEST TASK
                     TaskInstance atask = new TaskInstance(1,"sumA/cardA",900,0.5, new Date(),new Date());
-                    atask.setHeuristic("A", 5000, 1);
-                    int k=100;
+                    atask.setHeuristic("A", 30000, 1);
+                    int k=100000;
             		double[] testdata	=	new double[k];
             		for(int j=0;j<k;j++){
         			testdata[j]			=	k%50;

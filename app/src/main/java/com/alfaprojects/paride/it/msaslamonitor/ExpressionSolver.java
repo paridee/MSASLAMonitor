@@ -179,7 +179,13 @@ public class ExpressionSolver {
 	}
 	
 	public static double getResult(String expression,HashMap<String,double[]> values){
-		return eval(findCard(findSum(findProd(expression,values),values),values));
+		String step1	=	findProd(expression,values);
+		//System.out.println("ExpressionSolver 1 step" + step1);
+		String step2	=	findSum(step1, values);
+		//System.out.println("ExpressionSolver 2 step"+step2);
+		String step3	=	findCard(step2,values);
+		//System.out.println("ExpressionSolver 3 step"+step3);
+		return eval(step3);
 	}
 	/**
 	 * @param args

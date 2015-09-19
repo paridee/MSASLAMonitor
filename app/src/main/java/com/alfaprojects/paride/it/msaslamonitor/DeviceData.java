@@ -44,6 +44,31 @@ public class DeviceData {
     public double highwifithreshold     =   -120;
     public Context appContext;
 
+    public DeviceData clone(){
+        DeviceData returnvalue          =   new DeviceData();
+        returnvalue.RTT                 =   RTT;
+        returnvalue.bandwidthDL         =   bandwidthDL;
+        returnvalue.bandwidthUL         =   bandwidthUL;
+        returnvalue.mobilespeedparameter=   mobilespeedparameter;
+        returnvalue.cloudspeedparameter =   cloudspeedparameter;
+        returnvalue.wifi                =   wifi;
+        returnvalue.wifipower           =   wifipower;
+        returnvalue.radiopower          =   radiopower;
+        returnvalue.cpupower            =   cpupower;
+        returnvalue.cpuspeeds           =   cpuspeeds;
+        returnvalue.maxCpuPower         =   maxCpuPower;
+        returnvalue.wifiidle            =   wifiidle;
+        returnvalue.cellularidle        =   cellularidle;
+        returnvalue.cellularmaxidle     =   cellularmaxidle;
+        returnvalue.cellularmaxpower    =   cellularmaxpower;
+        returnvalue.scalingfactor       =   scalingfactor;
+        returnvalue.wifilevel           =   wifilevel;
+        returnvalue.batterylevel        =   batterylevel;
+        returnvalue.highbatterythreshold=   highbatterythreshold;
+        returnvalue.highwifithreshold   =   highwifithreshold;
+        returnvalue.appContext          =   appContext;
+        return returnvalue;
+    }
     public String getNetworkClass(Context context) {
         TelephonyManager mTelephonyManager = (TelephonyManager)
                 context.getSystemService(Context.TELEPHONY_SERVICE);

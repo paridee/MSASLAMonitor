@@ -25,7 +25,7 @@ import java.util.List;
 public class TestJson extends AsyncTask {
     @Override
     protected Object doInBackground(Object[] params) {
-        TaskInstance pippo  =   new TaskInstance(1,"sumA",100,1,new Date(),new Date());
+        TaskInstance pippo  =   null;//new TaskInstance(1,"sumA",100,1,new Date(),new Date());
         String pippostr     =   pippo.generateJson();
         HttpClient httpClient = new DefaultHttpClient();
         HttpPost httpPost = new HttpPost("http://"+Singletons.serverip+":8080/ServerMSA/MSAServlet");

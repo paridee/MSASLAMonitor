@@ -9,16 +9,17 @@ import java.util.Set;
 import com.google.gson.Gson;
 
 public class TaskInstance extends Task {
-	public	HashMap<Integer,Double>		heurstics =	new HashMap<Integer,Double>();
-	int[]								keys	=	new int[20];
 	private Date 						startDate;
 	private Date 						endDate;
 	private Date						expirationDate;
 	private double 						processeddata	=	-1;
 	private HashMap<String,double[]> 	rawdata			=	new HashMap<String,double[]>();
+
 	public TaskInstance(int id, String formula, int expiration,
-						double threshold, Date startDate, Date endDate) {
+						double threshold, Date startDate, Date endDate,HashMap<Integer,Double> heurstics,int[] keys) {
 		super(id, formula, expiration, threshold);
+		this.heurstics		=	heurstics;
+		this.keys			=	keys;
 		this.startDate		=	startDate;
 		long endseconds		=	startDate.getTime()+(expiration*1000);	//library uses milliseconds
 		this.expirationDate	=	new Date(endseconds);
@@ -89,53 +90,9 @@ public class TaskInstance extends Task {
 		TaskInstance	newtask	=	gson.fromJson(s, TaskInstance.class);
 		return newtask;
 	}
-	public void setHeuristic(String key,int maxnumberofelements,double meanvalue){ //poniamo che ho 1 solo item nell hashmap dei dati
-		int n	=	20;
-		for(int i=20;i>0;i--){
-			int k		=	i*(maxnumberofelements/n);
-			double[] testdata2	=	new double[k];
-			TaskInstance newTask	=	new TaskInstance(this.getId(),this.getFormula(),this.getExpiration(),this.getThreshold(),this.startDate,this.endDate);
-			for(int j=0;j<k;j++) {
-				testdata2[j] = meanvalue;
-				newTask.addToRawData(key, testdata2);
-			}
-
-			long start 	= 	System.currentTimeMillis();
-			//System.out.println("DATI "+newTask.getRawdata()+" val k "+k);
-			double res2	=	ExpressionSolver.getResult(this.getFormula(), newTask.getRawdata());
-			long end	= 	System.currentTimeMillis()-start;
-			System.out.println("ci ho messo per "+k+" elementi questo tempo "+end);
-			this.heurstics.put(k, (double) end / k);
-			keys[i-1]	=	k;
-			System.out.println("TaskInstance calcolata per numero element " + k + " valore " + (double)end/k);
-		}
-
-		long average	=	0;
-		/*
-		for(int i=0;i<20;i++){
-			int k		=	maxnumberofelements;
-			double[] testdata2	=	new double[k];
-			TaskInstance newTask	=	new TaskInstance(this.getId(),this.getFormula(),this.getExpiration(),this.getThreshold(),this.startDate,this.endDate);
-			for(int j=0;j<k;j++) {
-				testdata2[j] = meanvalue;
-				newTask.addToRawData(key, testdata2);
-			}
-
-			long start 	= 	System.currentTimeMillis();
-			//System.out.println("DATI "+newTask.getRawdata()+" val k "+k);
-			double res2	=	ExpressionSolver.getResult(this.getFormula(), newTask.getRawdata());
-			long end	= 	System.currentTimeMillis()-start;
-			System.out.println("ci ho messo per "+k+" elementi questo tempo "+end);
-			average	=	average+end;
-			System.out.println("TaskInstance calcolata per numero element " + k + " valore " + (double)end/k);
-		}
-		System.out.println("ci ho messo per "+maxnumberofelements+" elementi IN MEDIA questo tempo "+(average/20));
-		*/
-
-	}
 
 	public double calculateHeuristicTime() {
-		int size	=	this.rawdata.size();
+		int size	=	this.getDataSize();
 		if(size>=keys[4]){
 			System.out.println("TaskInstance per il singolo elemento ci metto "+heurstics.get(keys[4]) +" ho numero di elementi: "+size);
 			return (heurstics.get(keys[4])*this.getDataSize());

@@ -86,7 +86,6 @@ public class SpeedTestUploadTask extends AsyncTask {
                 e.printStackTrace();
             }
         }
-        TaskInstance pippo  =   new TaskInstance(1,"sumA",100,1,new Date(), new Date());
         System.out.println("SPEEDTESTUPLOAD");
         String pippostr     =   sb.toString();
         HttpClient httpClient = new DefaultHttpClient();

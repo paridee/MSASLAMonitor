@@ -6,6 +6,8 @@ import android.util.Log;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
@@ -30,6 +32,11 @@ public class Singletons {
     //public static Object cellularidle  =   0;
     //public static double cellularmaxidle  =   0;
     //public static double cellularmaxpower  =   0;
+    public static Date    currentSimulatedTime            =   new Date();
+    public static double  currentSimulatedBattery         =     1.0;
+    public static int     currentSimulatedWifilevel       =     -127;
+    public static int     scalingfactor                   =     900;
+    public static int     simulatedTimeStep               =     900000;
     public static Context anApplicationContext;
     public static String serverip   =   "10.200.93.235";
 
@@ -40,6 +47,21 @@ public class Singletons {
             System.out.println("missing some values");
         }
     }
+
+    //in my simulated time 900 seconds (900000 milliseconds) are 100 millisencods of real time (if scalingfactor = 9000)
+    public static int getInSimulatedtime(int milliseconds){
+        return (milliseconds/scalingfactor);
+    }
+
+    public static void advanceSimulatedTime(){
+        Calendar aCalendar  =   Calendar.getInstance();
+        aCalendar.setTime(currentSimulatedTime);
+        long millis =   aCalendar.getTimeInMillis();
+        millis  =   millis+simulatedTimeStep;
+        currentSimulatedTime    =   new Date(millis);
+        System.out.println("Singletons.java time advanced: "+currentSimulatedTime.toString());
+    }
+
 
     public static double calculatespeedparameter(DeviceData device){   //parameter used as reference for scaling factor, run on both sides
         //TODO needed to be extended with a task parameter and a reference test

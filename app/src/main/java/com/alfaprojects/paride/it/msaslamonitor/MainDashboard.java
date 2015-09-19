@@ -44,7 +44,7 @@ lenta) ho tutti i dati per continuare il processamento
  */
 public class MainDashboard extends ActionBarActivity {
 
-    DeviceData currentDevice;
+    DeviceData currentDevice;   //status of the current device
     double upperbound = -1; //graph y upper bound
     ArrayList<AsyncTask> activeTasks    =   new ArrayList<AsyncTask>();
     static KPIScheduler aScheduler  =   null;
@@ -89,64 +89,114 @@ public class MainDashboard extends ActionBarActivity {
         }
 
         @Override
+        protected void onProgressUpdate(Object[] values) {
+            super.onProgressUpdate(values);
+            TextView    RTTTextView     =   (TextView)findViewById(R.id.connection2);
+            TextView    uploadTextView  =   (TextView)findViewById(R.id.connection4);
+            TextView    downloadTestView=   (TextView)findViewById(R.id.connection3);
+            uploadTextView.setText("Upload "+this.device.bandwidthUL+" Mb/s");
+            RTTTextView.setText("RTT " + this.device.RTT + " ms");
+            downloadTestView.setText("Download " + this.device.bandwidthDL + " Mb/s");
+        }
+
+        @Override
         protected Object doInBackground(Object[] params) {
             while (true){
                 System.out.println("STARTING SHELLSERVICE");
                 StartService aService = new StartService(device);
                 aService.aTextView = tv;
                 aService.aContext = aContext;
-                AsyncTask task  =   aService.execute();
+                ////AsyncTask task  =   aService.execute();
                 //launch pingtest to google DNS
-                PingTask aTask = new PingTask(device);
-                aTask.aTextView = (TextView) findViewById(R.id.connection2);
+                ////PingTask aTask = new PingTask(device);
+                ////aTask.aTextView = (TextView) findViewById(R.id.connection2);
 
                 //TODO aTask.execute(""+Singletons.serverip);
-                aTask.execute("8.8.8.8");
-                activeTasks.add(this);
-                activeTasks.add(aTask);
+                ////aTask.execute("8.8.8.8");
+                ////activeTasks.add(this);
+                ////activeTasks.add(aTask);
                 //launch speedtest (demo image)
                 //SystemClock.sleep(10000);
-                SpeedTestTask speedTestTask =   new SpeedTestTask(device);
-                speedTestTask.aTv   =   (TextView) findViewById(R.id.connection3);
-                activeTasks.add(speedTestTask);
-                AsyncTask task2 =   speedTestTask.execute();
+
+
+                ////SpeedTestTask speedTestTask =   new SpeedTestTask(device);
+                ////speedTestTask.aTv   =   (TextView) findViewById(R.id.connection3);
+                ////activeTasks.add(speedTestTask);
+                ////AsyncTask task2 =   speedTestTask.execute();
                 //SystemClock.sleep(30000);
-                SpeedTestUploadTask uploadTask  =   new SpeedTestUploadTask(getApplicationContext(),device);
-                uploadTask.aTv   =   (TextView)findViewById(R.id.connection4);
-                Object returnobj   =   uploadTask.execute();
-                System.out.println("ShellService: ho aspettato il risultato di uploadasynctask "+returnobj);
-                activeTasks.add(uploadTask);
+                ////SpeedTestUploadTask uploadTask  =   new SpeedTestUploadTask(getApplicationContext(),device);
+                ////uploadTask.aTv   =   (TextView)findViewById(R.id.connection4);
+                ////Object returnobj   =   uploadTask.execute();
+                ////System.out.println("ShellService: ho aspettato il risultato di uploadasynctask "+returnobj);
+                ////activeTasks.add(uploadTask);
+
+
+                //TODO TEST DATI SIMULATI
+                double randomRTT    =   GeneratoreCasuale.randInt(50,10000);
+                randomRTT           =   randomRTT/10;
+                double randomDL     =   GeneratoreCasuale.randInt(10,10000);
+                randomDL            =   randomDL/100;
+                double randomUL     =   GeneratoreCasuale.randInt(1,3);
+                randomUL            =   randomDL/10000;
+                this.device.RTT     =   randomRTT;
+                this.device.bandwidthDL     =   randomDL;
+                this.device.bandwidthUL     =   randomUL;
+                this.publishProgress();
+                Singletons.updateGraph(this.device);
+
                 //SystemClock.sleep(10000);
                 //start another service like this after 10 seconds than die
                 if (isCancelled()) return null;
-                System.out.println("Dati elaborati wifi "+aService.isWifi+" speed "+speedTestTask.result+" RTT "+aTask.RTT );
+                //System.out.println("Dati elaborati wifi "+aService.isWifi+" speed "+speedTestTask.result+" RTT "+aTask.RTT );
                 if(aScheduler ==null){
 
                     //TODO REMOVE TEST TASK
-                    TaskInstance atask = new TaskInstance(1,"sumA/cardA",900,0.5, new Date(),new Date());
-                    atask.setHeuristic("A", 30000, 1);
-                    int k=100000;
-            		double[] testdata	=	new double[k];
-            		for(int j=0;j<k;j++){
-        			testdata[j]			=	k%50;
-            		}
-            		atask.addToRawData("A", testdata);;
+                    int random  = (int)GeneratoreCasuale.randInt(900,72000);
+                    Task testTask   =   new Task(1,"sumA/cardA",random,0.5);
+                    testTask.setHeuristic("A", 5000, 1);
                     ArrayList<TaskInstance> tasks   =   new ArrayList<>();
-                    tasks.add(atask);
+                    for(int i=0;i<10;i++){
+                        TaskInstance atask = new TaskInstance(testTask.getId(),testTask.getFormula(),testTask.getExpiration(),testTask.getThreshold(), Singletons.currentSimulatedTime,Singletons.currentSimulatedTime,testTask.getHeurstics(),testTask.getKeys());
+                        int k=i*100000;//(int)GeneratoreCasuale.randInt(1,50000);
+                        double[] testdata	=	new double[k];
+                        for(int j=0;j<k;j++){
+                            testdata[j]			=	k%50;
+                        }
+                        atask.addToRawData("A", testdata);;
+                        tasks.add(atask);
+                    }
                     Log.i("shellservice","non esiste scheduler creo");
                     int[][] hBatteryMatrix	=	pattern.getHighBatteryMatrix(pattern.startDate,pattern.finishDate);
                     int[][] hWifiMatrix      =   pattern.getHighWifiMatrix(pattern.startDate, pattern.finishDate);
-                    Decisor testd 	=	 new Decisor(pattern.getHighBatteryMatrix(pattern.startDate, pattern.finishDate),pattern.getHighWifiMatrix(pattern.startDate, pattern.finishDate));
+                    Decisor testd 	=	 new Decisor(hBatteryMatrix,hWifiMatrix);
                     aScheduler  =   new KPIScheduler(currentDevice,tasks,testd,60000);
                     aScheduler.execute();
                 }
-                SystemClock.sleep(30000);
+
+                else{
+                    int random  = (int)GeneratoreCasuale.randInt(900,72000);
+                    Task testTask   =   new Task(1,"sumA/cardA",random,0.5);
+                    testTask.setHeuristic("A", 5000, 1);
+                    for(int i=0;i<10;i++){
+                        TaskInstance atask = new TaskInstance(testTask.getId(),testTask.getFormula(),testTask.getExpiration(),testTask.getThreshold(), Singletons.currentSimulatedTime,Singletons.currentSimulatedTime,testTask.getHeurstics(),testTask.getKeys());
+                        int k=1+i;//(int)GeneratoreCasuale.randInt(1,50000);
+                        double[] testdata	=	new double[k];
+                        for(int j=0;j<k;j++){
+                            testdata[j]			=	k%50;
+                        }
+                        atask.addToRawData("A", testdata);;
+                        aScheduler.mytasks.add(atask);
+                    }
+                }
+                SystemClock.sleep(Singletons.getInSimulatedtime(30000));
                 ShellService newService =   new ShellService(this.aDashBoard,device);
+                Singletons.advanceSimulatedTime();
                 newService.tv   =   tv;
                 newService.aContext =   aContext;
                 AsyncTask task3 =   newService.execute();
                 return null;
             }
+
         }
 
         public class StartService extends AsyncTask {
@@ -282,15 +332,6 @@ public class MainDashboard extends ActionBarActivity {
             }
         }, new IntentFilter(WifiManager.RSSI_CHANGED_ACTION));
         pattern  =   new UsePattern("log.txt",30,-80,getApplicationContext());
-        int[][] hBatteryMatrix	=	pattern.getHighBatteryMatrix(pattern.startDate,pattern.finishDate);
-        int[][] hWifiMatrix      =   pattern.getHighWifiMatrix(pattern.startDate, pattern.finishDate);
-        Decisor testd 	=	 new Decisor(pattern.getHighBatteryMatrix(pattern.startDate, pattern.finishDate),pattern.getHighWifiMatrix(pattern.startDate, pattern.finishDate));
-        TaskInstance testingTask    =   new TaskInstance(2,"sumB/cardB",1800,0.5,new Date(),new Date());
-        int delay   =   3600; //TODO check
-        Date    today   =   new Date();
-        Date next   =   new Date(today.getTime()+delay*1000);
-
-
 
 
         /*

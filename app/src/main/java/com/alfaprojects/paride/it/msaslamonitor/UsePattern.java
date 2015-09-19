@@ -44,16 +44,16 @@ public class UsePattern {
 
 	        while (line != null) {
 	        	//parse file
-	        	System.out.println(line);
+	        	//System.out.println(line);
 	        	String day	=	line.substring(0, 14);
 	        	String[]	strings=	line.split(";");
 	        	PatternItem myItem	=	new PatternItem();
 	        	double level	=	Double.parseDouble(strings[2])*100;
 	        	int intlevel	=	(int)level;
-	        	System.out.println("Wifi level "+strings[1]+" battery level "+intlevel+"%");
+	        	//System.out.println("Wifi level "+strings[1]+" battery level "+intlevel+"%");
 	        	myItem.batteryLevel	=	intlevel;
 	        	myItem.wifiLevel	=	Integer.parseInt(strings[1]);
-	        	System.out.println(day);
+	        	//System.out.println(day);
 	        	DateFormat df = new SimpleDateFormat("yyyyMMddkkmmss");
 	        	Date result	=	null;
 	        	try {
@@ -62,13 +62,13 @@ public class UsePattern {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}  
-	        	System.out.println(result.toString());
+	        	//System.out.println(result.toString());
 	        	if(this.startDate==null){
 	        		this.startDate	=	result;
 	        	}
 	        	this.finishDate	=	result;
 	        	calendar.setTime(result);       	
-	        	System.out.println(this.getQuarter(calendar.get(Calendar.MINUTE)));
+	        	//System.out.println(this.getQuarter(calendar.get(Calendar.MINUTE)));
 	        	String nday	=	calendar.get(Calendar.DAY_OF_MONTH)+"";
 	        	String month=	(calendar.get(Calendar.MONTH)+1)+"";
 	        	String year	=	calendar.get(Calendar.YEAR)+"";
@@ -79,8 +79,8 @@ public class UsePattern {
 		        	hour	=	this.fixsize(hour);
 		        	DateFormat df2 = new SimpleDateFormat("yyyyMMddkkmm");
 		        	Date newDate	=	df2.parse(year+month+nday+hour+this.getQuarter(calendar.get(Calendar.MINUTE)));
-		        	System.out.println(year+month+nday+hour+this.getQuarter(calendar.get(Calendar.MINUTE)));
-		        	System.out.println(newDate.toString());
+		        	//System.out.println(year+month+nday+hour+this.getQuarter(calendar.get(Calendar.MINUTE)));
+		        	//System.out.println(newDate.toString());
 		        	mydata.put(newDate, myItem);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block

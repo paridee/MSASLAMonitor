@@ -25,10 +25,10 @@ public class KPIScheduler extends AsyncTask {
     @Override
     protected Object doInBackground(Object[] params) {
         System.out.println("KpiScheduler m'addormo pe' 2 minuti");
-        SystemClock.sleep(10000);
+        SystemClock.sleep(Singletons.getInSimulatedtime(120000));
 
         while(waitp){
-            SystemClock.sleep(2000);
+            SystemClock.sleep(Singletons.getInSimulatedtime(2000));
             if(!(deviceData.RTT==-1||deviceData.bandwidthUL==-1||deviceData.bandwidthDL==-1)){
                 waitp   =   false;
             }

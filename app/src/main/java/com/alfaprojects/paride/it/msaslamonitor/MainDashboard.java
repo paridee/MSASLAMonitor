@@ -101,12 +101,12 @@ public class MainDashboard extends ActionBarActivity {
 
         @Override
         protected Object doInBackground(Object[] params) {
+            System.out.println("STARTING SHELLSERVICE");
+            StartService aService = new StartService(device);
+            aService.aTextView = tv;
+            aService.aContext = aContext;
+            AsyncTask task  =   aService.execute();
             while (true){
-                System.out.println("STARTING SHELLSERVICE");
-                StartService aService = new StartService(device);
-                aService.aTextView = tv;
-                aService.aContext = aContext;
-                AsyncTask task  =   aService.execute();
                 //launch pingtest to google DNS
                 PingTask aTask = new PingTask(device);
                 aTask.aTextView = (TextView) findViewById(R.id.connection2);
@@ -126,7 +126,8 @@ public class MainDashboard extends ActionBarActivity {
                 SystemClock.sleep(10000);
                 SpeedTestUploadTask uploadTask  =   new SpeedTestUploadTask(getApplicationContext(),device);
                 uploadTask.aTv   =   (TextView)findViewById(R.id.connection4);
-                Object returnobj   =   uploadTask.execute();
+                uploadTask.execute();
+                Object returnobj    =   uploadTask.result;
                 System.out.println("ShellService: ho aspettato il risultato di uploadasynctask "+returnobj);
                 activeTasks.add(uploadTask);
 
@@ -177,23 +178,23 @@ public class MainDashboard extends ActionBarActivity {
                     int random  = (int)GeneratoreCasuale.randInt(900,72000);
                     Task testTask   =   new Task(1,"sumA/cardA",random,0.5);
                     testTask.setHeuristic("A", 5000, 1);
-                    for(int i=0;i<10;i++){
+                    for(int i=0;i<1000;i++){
                         TaskInstance atask = new TaskInstance(testTask.getId(),testTask.getFormula(),testTask.getExpiration(),testTask.getThreshold(), Singletons.currentSimulatedTime,Singletons.currentSimulatedTime,testTask.getHeurstics(),testTask.getKeys());
-                        int k=1+i;//(int)GeneratoreCasuale.randInt(1,50000);
+                        int k=1+(100*i);//(int)GeneratoreCasuale.randInt(1,50000);
                         double[] testdata	=	new double[k];
                         for(int j=0;j<k;j++){
-                            testdata[j]			=	k%50;
+                            testdata[j]			=	j%50;
                         }
                         atask.addToRawData("A", testdata);;
                         aScheduler.mytasks.add(atask);
                     }
                 }
                 SystemClock.sleep(Singletons.getInSimulatedtime(30000));
-                ShellService newService =   new ShellService(this.aDashBoard,device);
-                newService.tv   =   tv;
-                newService.aContext =   aContext;
-                AsyncTask task3 =   newService.execute();
-                return null;
+                //ShellService newService =   new ShellService(this.aDashBoard,device);
+                //newService.tv   =   tv;
+                //newService.aContext =   aContext;
+                //AsyncTask task3 =   newService.execute();
+                //return null;
             }
 
         }

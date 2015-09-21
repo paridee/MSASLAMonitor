@@ -46,7 +46,14 @@ public class KPIElaborator{
             if (next.after(subject.getExpirationDate())){
                 result  =   0;
             }
-            else return -1;
+
+
+            //TODO REMOVE, JUST FOR TEST (i have low battery)
+            result  =   0;
+
+
+
+            //else return -1;
         }
         System.out.println("KPIELABORATOR elaboro ");
         if (wifilevel > -127) {
@@ -88,10 +95,19 @@ public class KPIElaborator{
         }
         else{
             System.out.println("KPIELABORATOR  vado in locale");
-            //double solution =   ExpressionSolver.getResult(subject.getFormula(),subject.getRawdata());
-            //subject.setProcesseddata(solution);
-            //System.out.println("KPIELABORATOR  risultato: "+solution);
+            double solution =   0;
+            if(subject.getDataSize()>0){
+                solution    =   ExpressionSolver.getResult(subject.getFormula(),subject.getRawdata());
+                System.out.println("KPIElaborator task elaborato "+solution);
+            }
+            else{
+                solution    =   -1;
+                System.out.println("KPIElaborator task vuoto!!!");
+            }
+            subject.setProcesseddata(solution);
+            System.out.println("KPIELABORATOR  risultato: "+solution);
             //TODO SEND TO SERVER (only solution)
+
             double consumption   =   localtime*data.maxCpuPower;
             System.out.println("KPIELABORATOR consumo calcolato LOCALE " + consumption);
         }

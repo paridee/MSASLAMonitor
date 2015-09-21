@@ -24,33 +24,32 @@ public class KPIScheduler extends AsyncTask {
     }
     @Override
     protected Object doInBackground(Object[] params) {
-        System.out.println("KpiScheduler m'addormo pe' 2 minuti cioe "+Singletons.getInSimulatedtime(this.polling)+" millisecondi");
-        SystemClock.sleep(Singletons.getInSimulatedtime(this.polling));
+        while(true){
+            System.out.println("KpiScheduler m'addormo pe' 2 minuti cioe "+Singletons.getInSimulatedtime(this.polling)+" millisecondi");
+            SystemClock.sleep(Singletons.getInSimulatedtime(this.polling));
 
-        while(waitp){
-            SystemClock.sleep(Singletons.getInSimulatedtime(2000));
-            if(!(deviceData.RTT==-1||deviceData.bandwidthUL==-1||deviceData.bandwidthDL==-1)){
-                waitp   =   false;
+            while(waitp){
+                SystemClock.sleep(Singletons.getInSimulatedtime(2000));
+                if(!(deviceData.RTT==-1||deviceData.bandwidthUL==-1||deviceData.bandwidthDL==-1)){
+                    waitp   =   false;
+                }
+                System.out.println("KpiScheduler ASPETTO DEVICEDATA RTT "+deviceData.RTT+" UL "+deviceData.bandwidthUL+" DL "+deviceData.bandwidthDL);
             }
-            System.out.println("KpiScheduler ASPETTO DEVICEDATA RTT "+deviceData.RTT+" UL "+deviceData.bandwidthUL+" DL "+deviceData.bandwidthDL);
-        }
-        System.out.println("KpiScheduler OTTENUTI DEVICEDATA");
-        System.out.println("KpiScheduler s'e' svejatoooooooooooo lunghezza lista task "+mytasks.size());
-        Singletons.advanceSimulatedTime();
-        ArrayList<TaskInstance> launched    =   new ArrayList<TaskInstance>();
-        for(int i=0;i<mytasks.size();i++){
-            KPIElaborator elaborator    =   new KPIElaborator(this.decisor,this.deviceData,this.polling,mytasks.get(i));
-            int completed   =   elaborator.execute();
-            System.out.println("KPIScheduler completato round task "+mytasks.get(i).toString()+" con risultato "+completed);
-            if(completed==1) {
-                launched.add(mytasks.get(i));
+            System.out.println("KpiScheduler OTTENUTI DEVICEDATA");
+            System.out.println("KpiScheduler s'e' svejatoooooooooooo lunghezza lista task "+mytasks.size());
+            Singletons.advanceSimulatedTime();
+            ArrayList<TaskInstance> launched    =   new ArrayList<TaskInstance>();
+            for(int i=0;i<mytasks.size();i++){
+                KPIElaborator elaborator    =   new KPIElaborator(this.decisor,this.deviceData,this.polling,mytasks.get(i));
+                int completed   =   elaborator.execute();
+                System.out.println("KPIScheduler completato round task "+mytasks.get(i).toString()+" con risultato "+completed);
+                if(completed==1) {
+                    launched.add(mytasks.get(i));
+                }
+            }
+            for(int j=0;j<launched.size();j++){
+                mytasks.remove(launched.get(j));
             }
         }
-        for(int j=0;j<launched.size();j++){
-            mytasks.remove(launched.get(j));
-        }
-        KPIScheduler newInstance    =   new KPIScheduler(this.deviceData,this.mytasks,this.decisor,this.polling);
-        newInstance.execute();
-        return null;
     }
 }

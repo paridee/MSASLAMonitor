@@ -169,7 +169,7 @@ public class MainDashboard extends ActionBarActivity {
                     int[][] hBatteryMatrix	=	pattern.getHighBatteryMatrix(pattern.startDate,pattern.finishDate);
                     int[][] hWifiMatrix      =   pattern.getHighWifiMatrix(pattern.startDate, pattern.finishDate);
                     Decisor testd 	=	 new Decisor(hBatteryMatrix,hWifiMatrix);
-                    aScheduler  =   new KPIScheduler(currentDevice,tasks,testd,60000);
+                    aScheduler  =   new KPIScheduler(currentDevice,tasks,testd,6000);
                     aScheduler.execute();
                 }
 

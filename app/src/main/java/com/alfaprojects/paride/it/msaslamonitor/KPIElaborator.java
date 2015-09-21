@@ -8,7 +8,7 @@ import java.util.Date;
 /**
  * Created by paride on 26/08/15.
  */
-public class KPIElaborator extends AsyncTask{
+public class KPIElaborator{
     public DeviceData       data;
     public TaskInstance     subject;
     public Decisor          aDecisor;
@@ -21,8 +21,7 @@ public class KPIElaborator extends AsyncTask{
         this.subject = subject;
     }
 
-    @Override
-    protected Object doInBackground(Object[] params) {
+    public int execute() {
         //data.updateBatteryAndSignalState(); //before making elaboration please update cellular state
         int batterylevel=0;
         int wifilevel   =0;
@@ -36,21 +35,18 @@ public class KPIElaborator extends AsyncTask{
         //decide if compute now or later
         int result =    aDecisor.decide(batterylevel,wifilevel,Singletons.currentSimulatedTime,subject.getExpirationDate());
         System.out.println("KPIELABORATOR risultato dopo 1a decisione " + result);
-        while(result==1){   //while i don't have to compute check again and sleep
+        if(result==1){   //while i don't have to compute check again and sleep
             SystemClock.sleep(Singletons.getInSimulatedtime(delay));
             Date now    =   Singletons.currentSimulatedTime;
             result =    aDecisor.decide(batterylevel,wifilevel,now,subject.getExpirationDate());
             System.out.println("KPIELABORATOR risultato dopo 1a decisione succ "+result);
             Date    today   =  now;
             Date next   =   new Date(today.getTime()+delay);
-
-            //TODO TEST
-            //result  =   0;
-
             //check if the next interval is AFTER task expiration date!
             if (next.after(subject.getExpirationDate())){
                 result  =   0;
             }
+            else return -1;
         }
         System.out.println("KPIELABORATOR elaboro ");
         if (wifilevel > -127) {
@@ -100,6 +96,6 @@ public class KPIElaborator extends AsyncTask{
             System.out.println("KPIELABORATOR consumo calcolato LOCALE " + consumption);
         }
         //TODO save values on a log
-        return null;
+        return 1;
     }
 }

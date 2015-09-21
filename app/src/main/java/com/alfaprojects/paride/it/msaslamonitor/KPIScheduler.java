@@ -24,8 +24,8 @@ public class KPIScheduler extends AsyncTask {
     }
     @Override
     protected Object doInBackground(Object[] params) {
-        System.out.println("KpiScheduler m'addormo pe' 2 minuti");
-        SystemClock.sleep(Singletons.getInSimulatedtime(120000));
+        System.out.println("KpiScheduler m'addormo pe' 2 minuti cioe "+Singletons.getInSimulatedtime(this.polling)+" millisecondi");
+        SystemClock.sleep(Singletons.getInSimulatedtime(this.polling));
 
         while(waitp){
             SystemClock.sleep(Singletons.getInSimulatedtime(2000));
@@ -40,8 +40,11 @@ public class KPIScheduler extends AsyncTask {
         ArrayList<TaskInstance> launched    =   new ArrayList<TaskInstance>();
         for(int i=0;i<mytasks.size();i++){
             KPIElaborator elaborator    =   new KPIElaborator(this.decisor,this.deviceData,this.polling,mytasks.get(i));
-            elaborator.execute();
-            launched.add(mytasks.get(i));
+            int completed   =   elaborator.execute();
+            System.out.println("KPIScheduler completato round task "+mytasks.get(i).toString()+" con risultato "+completed);
+            if(completed==1) {
+                launched.add(mytasks.get(i));
+            }
         }
         for(int j=0;j<launched.size();j++){
             mytasks.remove(launched.get(j));

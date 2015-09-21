@@ -60,7 +60,7 @@ public class SpeedTestTask extends AsyncTask {
         InputStream stream=null;
         try {
             int bytesIn=0;
-            String downloadFileUrl="http://www.latestanelpallone.com/wp-content/uploads/2015/04/Francesco_Totti_Roma.jpg";
+            String downloadFileUrl="http://www.calcionotizie24.net/wp-content/uploads/2014/12/RTR2DDT51tottismall.jpg";
             //String downloadFileUrl="http://"+Singletons.serverip+":8080/ServerMSA/test.jpeg";
             System.out.println("SPEEDTEST DL URL "+downloadFileUrl);
             long startCon=System.currentTimeMillis();

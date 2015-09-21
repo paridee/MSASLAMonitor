@@ -44,6 +44,9 @@ public class KPIElaborator extends AsyncTask{
             Date    today   =  now;
             Date next   =   new Date(today.getTime()+delay);
 
+            //TODO TEST
+            //result  =   0;
+
             //check if the next interval is AFTER task expiration date!
             if (next.after(subject.getExpirationDate())){
                 result  =   0;
@@ -73,13 +76,13 @@ public class KPIElaborator extends AsyncTask{
         //TODO misura header HTTP per il messaggio per calcolare il tempo di trasmissione
         int messagesize =   json.length();//TODO +httpheader
         System.out.println("KPIELABORATOR calcolo dati da trasmettere ");
-        double localtime    =   subject.calculateHeuristicTime();   //todo calculate local time (heuristic)
+        double localtime    =   subject.calculateHeuristicTime()/1000;   //divide 1000 seconds!!!
         double numerator    =   (double)(messagesize*8)/(1024*1024);
         System.out.println("KPIELABORATOR numeratore "+numerator);
-        double txtime               =   numerator/data.bandwidthUL;//TODO speedtest uplink!
+        double txtime               =   (numerator)/data.bandwidthUL;//TODO speedtest uplink! TIME IN SECONDS ASSHOLE!
         double maxlocaltime         =   myOffloadingFunction.getLocalComputationTimeForOffloadingTime(txtime);
         double sizeforoffloading    =   (maxlocaltime*data.bandwidthUL)/8;
-        System.out.println("KPIELABORATOR  valori trovati: localtime "+localtime+" txtime "+txtime+" per lunghezza messaggio "+messagesize+" maxlocaltime "+maxlocaltime+" maximum data size for offloading "+sizeforoffloading+" MB");
+        System.out.println("KPIELABORATOR  valori trovati: localtime "+localtime+" txtime "+txtime+" per lunghezza messaggio "+messagesize+" maxlocaltime "+maxlocaltime+" maximum data size for offloading "+sizeforoffloading+" MB numero elementi "+subject.getDataSize());
         if(localtime>maxlocaltime){
             //TODO OFFLOAD
             System.out.println("KPIELABORATOR  vado in offload");

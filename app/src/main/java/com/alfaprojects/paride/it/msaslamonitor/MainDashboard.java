@@ -106,45 +106,45 @@ public class MainDashboard extends ActionBarActivity {
                 StartService aService = new StartService(device);
                 aService.aTextView = tv;
                 aService.aContext = aContext;
-                ////AsyncTask task  =   aService.execute();
+                AsyncTask task  =   aService.execute();
                 //launch pingtest to google DNS
-                ////PingTask aTask = new PingTask(device);
-                ////aTask.aTextView = (TextView) findViewById(R.id.connection2);
+                PingTask aTask = new PingTask(device);
+                aTask.aTextView = (TextView) findViewById(R.id.connection2);
 
                 //TODO aTask.execute(""+Singletons.serverip);
-                ////aTask.execute("8.8.8.8");
-                ////activeTasks.add(this);
-                ////activeTasks.add(aTask);
+                aTask.execute("8.8.8.8");
+                activeTasks.add(this);
+                activeTasks.add(aTask);
                 //launch speedtest (demo image)
-                //SystemClock.sleep(10000);
+                SystemClock.sleep(10000);
 
 
-                ////SpeedTestTask speedTestTask =   new SpeedTestTask(device);
-                ////speedTestTask.aTv   =   (TextView) findViewById(R.id.connection3);
-                ////activeTasks.add(speedTestTask);
-                ////AsyncTask task2 =   speedTestTask.execute();
-                //SystemClock.sleep(30000);
-                ////SpeedTestUploadTask uploadTask  =   new SpeedTestUploadTask(getApplicationContext(),device);
-                ////uploadTask.aTv   =   (TextView)findViewById(R.id.connection4);
-                ////Object returnobj   =   uploadTask.execute();
-                ////System.out.println("ShellService: ho aspettato il risultato di uploadasynctask "+returnobj);
-                ////activeTasks.add(uploadTask);
+                SpeedTestTask speedTestTask =   new SpeedTestTask(device);
+                speedTestTask.aTv   =   (TextView) findViewById(R.id.connection3);
+                activeTasks.add(speedTestTask);
+                AsyncTask task2 =   speedTestTask.execute();
+                SystemClock.sleep(10000);
+                SpeedTestUploadTask uploadTask  =   new SpeedTestUploadTask(getApplicationContext(),device);
+                uploadTask.aTv   =   (TextView)findViewById(R.id.connection4);
+                Object returnobj   =   uploadTask.execute();
+                System.out.println("ShellService: ho aspettato il risultato di uploadasynctask "+returnobj);
+                activeTasks.add(uploadTask);
 
-
+/*
                 //TODO TEST DATI SIMULATI
                 double randomRTT    =   GeneratoreCasuale.randInt(50,10000);
                 randomRTT           =   randomRTT/10;
                 double randomDL     =   GeneratoreCasuale.randInt(10,10000);
                 randomDL            =   randomDL/100;
                 double randomUL     =   GeneratoreCasuale.randInt(1,3);
-                randomUL            =   randomDL/10000;
+                randomUL            =   randomDL/100;
                 this.device.RTT     =   randomRTT;
                 this.device.bandwidthDL     =   randomDL;
                 this.device.bandwidthUL     =   randomUL;
                 this.publishProgress();
-                Singletons.updateGraph(this.device);
+                Singletons.updateGraph(this.device);*/
 
-                //SystemClock.sleep(10000);
+                SystemClock.sleep(10000);
                 //start another service like this after 10 seconds than die
                 if (isCancelled()) return null;
                 //System.out.println("Dati elaborati wifi "+aService.isWifi+" speed "+speedTestTask.result+" RTT "+aTask.RTT );
@@ -190,7 +190,6 @@ public class MainDashboard extends ActionBarActivity {
                 }
                 SystemClock.sleep(Singletons.getInSimulatedtime(30000));
                 ShellService newService =   new ShellService(this.aDashBoard,device);
-                Singletons.advanceSimulatedTime();
                 newService.tv   =   tv;
                 newService.aContext =   aContext;
                 AsyncTask task3 =   newService.execute();

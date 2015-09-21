@@ -36,6 +36,7 @@ public class KPIScheduler extends AsyncTask {
         }
         System.out.println("KpiScheduler OTTENUTI DEVICEDATA");
         System.out.println("KpiScheduler s'e' svejatoooooooooooo lunghezza lista task "+mytasks.size());
+        Singletons.advanceSimulatedTime();
         ArrayList<TaskInstance> launched    =   new ArrayList<TaskInstance>();
         for(int i=0;i<mytasks.size();i++){
             KPIElaborator elaborator    =   new KPIElaborator(this.decisor,this.deviceData,this.polling,mytasks.get(i));

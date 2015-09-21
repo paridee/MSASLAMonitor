@@ -23,7 +23,8 @@ public class OffloadingFunction {
     }
 
     public double getLocalComputationTimeForOffloadingTime(double txTime){
-        double res  =   ((this.txPower*txTime)+(this.idlePower*this.RTT))/(this.computationLocalPower-(this.idlePower/this.scalingFactor));
+        System.out.println("TXTIME "+txTime+" sec RTT "+this.RTT+"sec");
+        double res  =   ((this.txPower*txTime)+(2*this.idlePower*this.RTT))/(this.computationLocalPower-(this.idlePower/this.scalingFactor));
         return res;
     }
 

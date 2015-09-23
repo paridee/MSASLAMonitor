@@ -93,18 +93,21 @@ public class TaskInstance extends Task {
 
 	public double calculateHeuristicTime() {
 		int size	=	this.getDataSize();
-		if(size>=keys[4]){
-			System.out.println("TaskInstance per il singolo elemento ci metto "+heurstics.get(keys[4]) +" ho numero di elementi: "+size);
-			return (heurstics.get(keys[4])*this.getDataSize());
+		if(size<keys[0]){
+			System.out.println("TaskInstance per il singolo elemento ci metto "+heurstics.get(keys[0]) +" indice "+0 +" ho numero di elementi: "+size);
+			return (heurstics.get(keys[(keys.length-1)])*this.getDataSize());
 		}
 		double returnvalue	=	heurstics.get(keys[0]);;
-		for(int i=0;i<5;i++){
-			if(size>keys[i]){
-				return returnvalue;
+		for(int i=0;i<(keys.length-1);i++){
+			if(size>=keys[i]){
+				returnvalue	=	heurstics.get(keys[i]);
 			}
-			returnvalue	=	heurstics.get(keys[i]);
+			else{
+				System.out.println("TaskInstance per il singolo elemento ci metto "+heurstics.get(keys[i-1]) +" indice "+(i-1) +" ho numero di elementi: "+size);
+				return (returnvalue*this.getDataSize());
+			}
 		}
-		System.out.println("TaskInstance per il singolo elemento ci metto " + returnvalue + " ho numero di elementi: " + size);
+		System.out.println("TaskInstance per il singolo elemento ci metto "+heurstics.get(keys[keys.length-1]) +" indice "+(keys[keys.length-1]) +" ho numero di elementi: "+size);
 		return (returnvalue*this.getDataSize());
 	}
 }

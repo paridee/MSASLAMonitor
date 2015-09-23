@@ -10,6 +10,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.BatteryManager;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.support.v7.app.ActionBarActivity;
@@ -37,6 +38,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /*
 l'update del grafico viene fatto dopo lo speedtest! quindi dopo lo speedtest (che e' l'operazione piu'
@@ -49,6 +52,7 @@ public class MainDashboard extends ActionBarActivity {
     ArrayList<AsyncTask> activeTasks    =   new ArrayList<AsyncTask>();
     static KPIScheduler aScheduler  =   null;
     UsePattern pattern  =   null;
+    Task testTask;
 
     private BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver(){
         @Override
@@ -153,12 +157,12 @@ public class MainDashboard extends ActionBarActivity {
 
                     //TODO REMOVE TEST TASK
                     int random  = (int)GeneratoreCasuale.randInt(900,72000);
-                    Task testTask   =   new Task(1,"sumA/cardA",random,0.5);
-                    testTask.setHeuristic("A", 5000, 1);
+                    testTask   =   new Task(1,"sumA/cardA",random,0.5);
+                    testTask.setHeuristic("A", 10000, 1);
                     ArrayList<TaskInstance> tasks   =   new ArrayList<>();
-                    for(int i=0;i<10;i++){
+                    for(int i=0;i<2000;i++){
                         TaskInstance atask = new TaskInstance(testTask.getId(),testTask.getFormula(),testTask.getExpiration(),testTask.getThreshold(), Singletons.currentSimulatedTime,Singletons.currentSimulatedTime,testTask.getHeurstics(),testTask.getKeys());
-                        int k=i*100000;//(int)GeneratoreCasuale.randInt(1,50000);
+                        int k=i+1;//(int)GeneratoreCasuale.randInt(1,50000);
                         double[] testdata	=	new double[k];
                         for(int j=0;j<k;j++){
                             testdata[j]			=	k%50;
@@ -170,17 +174,20 @@ public class MainDashboard extends ActionBarActivity {
                     int[][] hBatteryMatrix	=	pattern.getHighBatteryMatrix(pattern.startDate,pattern.finishDate);
                     int[][] hWifiMatrix      =   pattern.getHighWifiMatrix(pattern.startDate, pattern.finishDate);
                     Decisor testd 	=	 new Decisor(hBatteryMatrix,hWifiMatrix);
-                    aScheduler  =   new KPIScheduler(currentDevice,tasks,testd,120000);
-                    aScheduler.execute();
+                    aScheduler  =   new KPIScheduler(currentDevice,tasks,testd,120000,this.aContext);
+                    ExecutorService anExecutor  =   java.util.concurrent.Executors.newFixedThreadPool(100);
+                    if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB)
+                        aScheduler.executeOnExecutor(anExecutor);
+                    else
+                        aScheduler.execute();
                 }
 
                 else{
                     int random  = (int)GeneratoreCasuale.randInt(900,72000);
-                    Task testTask   =   new Task(1,"sumA/cardA",random,0.5);
-                    testTask.setHeuristic("A", 5000, 1);
-                    for(int i=0;i<1000;i++){
+                    Log.i("shellservice","esiste scheduler, aggiungo a task esistenti");
+                    for(int i=0;i<2000;i++){
                         TaskInstance atask = new TaskInstance(testTask.getId(),testTask.getFormula(),testTask.getExpiration(),testTask.getThreshold(), Singletons.currentSimulatedTime,Singletons.currentSimulatedTime,testTask.getHeurstics(),testTask.getKeys());
-                        int k=1+(100*i);//(int)GeneratoreCasuale.randInt(1,50000);
+                        int k=1+i;//(int)GeneratoreCasuale.randInt(1,50000);
                         double[] testdata	=	new double[k];
                         for(int j=0;j<k;j++){
                             testdata[j]			=	j%50;
@@ -188,13 +195,14 @@ public class MainDashboard extends ActionBarActivity {
                         atask.addToRawData("A", testdata);;
                         aScheduler.mytasks.add(atask);
                     }
+                    Log.i("shellservice","esiste scheduler, totale task esistenti "+aScheduler.mytasks.size());
                 }
                 SystemClock.sleep(Singletons.getInSimulatedtime(30000));
-                //ShellService newService =   new ShellService(this.aDashBoard,device);
-                //newService.tv   =   tv;
-                //newService.aContext =   aContext;
-                //AsyncTask task3 =   newService.execute();
-                //return null;
+                ShellService newService =   new ShellService(this.aDashBoard,device);
+                newService.tv   =   tv;
+                newService.aContext =   aContext;
+                AsyncTask task3 =   newService.execute();
+                return null;
             }
 
         }
@@ -256,6 +264,7 @@ public class MainDashboard extends ActionBarActivity {
                     this.device.wifi=true;
                 } else {
                     this.aTextView.setText(type);
+                    this.device.wifi=false;
                 }
             }
 
@@ -275,6 +284,7 @@ public class MainDashboard extends ActionBarActivity {
                 }
                 String networkKind = getNetworkClass(this.aContext);
                 System.out.println(":LIVELLO RSSI " + RSSI + " network type " + networkKind);
+                this.device.wifilevel   =   RSSI;
                 if(RSSI>-127){
                     this.isWifi =   true;
                 }

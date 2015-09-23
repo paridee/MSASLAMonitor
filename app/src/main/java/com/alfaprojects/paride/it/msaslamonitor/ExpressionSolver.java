@@ -46,7 +46,7 @@ public class ExpressionSolver {
 	        }
 
 	        double parseTerm() {
-	            double v = parseFactor();
+				double v = parseFactor();
 	            for (;;) {
 	                eatSpace();
 	                if (c == '/') { // division

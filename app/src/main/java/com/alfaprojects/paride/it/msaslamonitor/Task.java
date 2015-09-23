@@ -46,10 +46,10 @@ public class Task {
 			double[] testdata2	=	new double[k];
 			TaskInstance newTask	=	new TaskInstance(this.getId(),this.getFormula(),this.getExpiration(),this.getThreshold(),Singletons.currentSimulatedTime,Singletons.currentSimulatedTime,this.heurstics,this.keys);
 			for(int j=0;j<k;j++) {
-				testdata2[j] = meanvalue;
-				newTask.addToRawData(key, testdata2);
+				testdata2[j]			=	j%50;
+				//testdata2[j] = meanvalue;
 			}
-
+			newTask.addToRawData(key, testdata2);
 			long start 	= 	System.currentTimeMillis();
 			//System.out.println("DATI "+newTask.getRawdata()+" val k "+k);
 			double res2	=	ExpressionSolver.getResult(this.getFormula(), newTask.getRawdata());

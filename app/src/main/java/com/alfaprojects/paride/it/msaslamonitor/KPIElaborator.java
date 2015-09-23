@@ -21,10 +21,11 @@ public class KPIElaborator{
         this.subject = subject;
     }
 
-    public int execute() {
+    public int compute() {
         //data.updateBatteryAndSignalState(); //before making elaboration please update cellular state
         int batterylevel=0;
         int wifilevel   =0;
+        Singletons.setProcessedTasks();
         System.out.println("KPIELABORATOR inizio esecuzione");
         if(data.batterylevel>=data.highbatterythreshold){
             batterylevel    =   1;
@@ -36,6 +37,7 @@ public class KPIElaborator{
         int result =    aDecisor.decide(batterylevel,wifilevel,Singletons.currentSimulatedTime,subject.getExpirationDate());
         System.out.println("KPIELABORATOR risultato dopo 1a decisione " + result);
         if(result==1){   //while i don't have to compute check again and sleep
+            Singletons.setPostponedTask();
             SystemClock.sleep(Singletons.getInSimulatedtime(delay));
             Date now    =   Singletons.currentSimulatedTime;
             result =    aDecisor.decide(batterylevel,wifilevel,now,subject.getExpirationDate());
@@ -56,20 +58,23 @@ public class KPIElaborator{
             //else return -1;
         }
         System.out.println("KPIELABORATOR elaboro ");
-        if (wifilevel > -127) {
-            data.wifi   =   true;
-        } else {
-            data.wifi   =   false;
-        }
+        //if (wifilevel > -127) {
+        //    data.wifi   =   true;
+        //} else {
+        //    data.wifi   =   false;
+        //}
         double idlepower    =   0;
         double txpower      =   0;
+        System.out.println("KPIElaborator livello wifi "+data.wifilevel);
         if(data.wifi==true){
             idlepower   =   data.wifiidle;
             txpower     =   data.wifipower;
+            System.out.println("KPIElaborator sto in wifi potenze: idle: " + idlepower + " TX: " + txpower);
         }
         else{
             idlepower   =   data.cellularmaxidle;
             txpower     =   data.cellularmaxpower;
+            System.out.println("KPIElaborator sto in cellular potenze: idle: "+idlepower+" TX: "+txpower);
         }
         double RTTms    =   data.RTT/1000;
         OffloadingFunction myOffloadingFunction =   new OffloadingFunction(data.maxCpuPower,idlepower,RTTms,data.scalingfactor,txpower);
@@ -86,19 +91,26 @@ public class KPIElaborator{
         double maxlocaltime         =   myOffloadingFunction.getLocalComputationTimeForOffloadingTime(txtime);
         double sizeforoffloading    =   (maxlocaltime*data.bandwidthUL)/8;
         System.out.println("KPIELABORATOR  valori trovati: localtime "+localtime+" txtime "+txtime+" per lunghezza messaggio "+messagesize+" maxlocaltime "+maxlocaltime+" maximum data size for offloading "+sizeforoffloading+" MB numero elementi "+subject.getDataSize());
+        double saving   =   (localtime*data.maxCpuPower)-(myOffloadingFunction.calculateOffloadingConsumption(txtime,localtime));
         if(localtime>maxlocaltime){
             //TODO OFFLOAD
+            Singletons.setOffloadedTasks();
+            Singletons.setSavedEnergy((int)saving);
             System.out.println("KPIELABORATOR  vado in offload");
-            double saving   =   localtime*data.maxCpuPower-myOffloadingFunction.calculateOffloadingConsumption(data,txtime,localtime);
             System.out.println("KPIELABORATOR risparmio calcolato " + saving);
-            System.out.println("KPIELABORATOR consumo calcolato OFFLOAD " + myOffloadingFunction.calculateOffloadingConsumption(data,txtime,localtime));
+            System.out.println("KPIELABORATOR consumo calcolato OFFLOAD " + myOffloadingFunction.calculateOffloadingConsumption(txtime,localtime));
         }
         else{
+            Singletons.setLocalTasks();
             System.out.println("KPIELABORATOR  vado in locale");
             double solution =   0;
             if(subject.getDataSize()>0){
+                long start  =   System.currentTimeMillis();
                 solution    =   ExpressionSolver.getResult(subject.getFormula(),subject.getRawdata());
-                System.out.println("KPIElaborator task elaborato "+solution);
+                long end    =   System.currentTimeMillis();
+                end =   end-start;
+                double timer =   (double)end/1000;
+                System.out.println("KPIElaborator task elaborato "+solution+" tempo previsto "+localtime+" tempo effettivo "+timer+" numero elementi "+subject.getDataSize());
             }
             else{
                 solution    =   -1;

@@ -2,6 +2,7 @@ package com.alfaprojects.paride.it.msaslamonitor;
 
 import android.content.Context;
 import android.util.Log;
+import android.widget.TextView;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -11,11 +12,19 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by paride on 01/07/15.
  */
 public class Singletons {
+    private static int processedTasks       =   0;
+    private static int localTasks           =   0;
+    private static int offloadedTasks       =   0;
+    private static int savedEnergy          =   0;
+    private static int postponedTask        =   0;
+    private static ReentrantLock valueslock        =   new ReentrantLock();
     //public static double RTT=-1;
     //public static double bandwidthDL=-1;
     //public static double bandwidthUL=-1;
@@ -39,6 +48,56 @@ public class Singletons {
     public static int     simulatedTimeStep               =     900000;
     public static Context anApplicationContext;
     public static String serverip   =   "10.200.93.235";
+
+    public static int getLocalTasks() {
+        return localTasks;
+    }
+
+    public static void setLocalTasks() {
+        valueslock.lock();;
+        Singletons.localTasks = localTasks+1;
+        valueslock.unlock();
+    }
+
+    public static int getOffloadedTasks() {
+        return offloadedTasks;
+    }
+
+    public static void setOffloadedTasks() {
+        valueslock.lock();
+        Singletons.offloadedTasks = offloadedTasks+1;
+        valueslock.unlock();
+    }
+
+    public static int getPostponedTask() {
+        return postponedTask;
+    }
+
+    public static void setPostponedTask() {
+        valueslock.lock();
+        Singletons.postponedTask = postponedTask+1;
+        valueslock.unlock();
+    }
+
+    public static int getProcessedTasks() {
+        return processedTasks;
+    }
+
+    public static void setProcessedTasks() {
+        valueslock.lock();
+        Singletons.processedTasks = processedTasks+1;
+        valueslock.unlock();
+    }
+
+    public static int getSavedEnergy() {
+        return savedEnergy;
+    }
+
+    public static void setSavedEnergy(int savedEnergy) {
+        valueslock.lock();
+        Singletons.savedEnergy = savedEnergy+Singletons.savedEnergy;
+        valueslock.unlock();
+    }
 
     public static void updateGraph(DeviceData data) {
         if(data.RTT!=-1&&data.bandwidthUL!=-1)
@@ -208,5 +267,19 @@ public class Singletons {
             e.printStackTrace();
         }
 
+    }
+
+    public static void updateTasksTextView() {
+
+        TextView tvTotalTasks       =   (TextView)  dashboard.findViewById(R.id.tvTotalTasks);
+        TextView tvPostponedTasks   =   (TextView)  dashboard.findViewById(R.id.tvPostponedTasks);
+        TextView tvLocalTasks       =   (TextView)  dashboard.findViewById(R.id.tvLocalTasks);
+        TextView tvOffloadedTasks   =   (TextView)  dashboard.findViewById(R.id.tvOffloadedTasks);
+        TextView tvSavings          =   (TextView)  dashboard.findViewById(R.id.tvSavedEnergy);
+        tvTotalTasks.setText("Total tasks instances managed: "+Singletons.getProcessedTasks());
+        tvLocalTasks.setText("Total local tasks: "+Singletons.getLocalTasks());
+        tvOffloadedTasks.setText("Total offloaded tasks: "+Singletons.getOffloadedTasks());
+        tvPostponedTasks.setText("Total postponed tasks: "+Singletons.getPostponedTask());
+        tvSavings.setText("Total energy saving: "+Singletons.getSavedEnergy());
     }
 }

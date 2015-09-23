@@ -28,23 +28,8 @@ public class OffloadingFunction {
         return res;
     }
 
-    public double calculateOffloadingConsumption(DeviceData data, double txtime,double localComputationTime){
-        if (data.wifilevel > -127) {
-            data.wifi   =   true;
-        } else {
-            data.wifi   =   false;
-        }
-        double idlepower    =   0;
-        double txpower      =   0;
-        if(data.wifi==true){
-            idlepower   =   data.wifiidle;
-            txpower     =   data.wifipower;
-        }
-        else{
-            idlepower   =   data.cellularmaxidle;
-            txpower     =   data.cellularmaxpower;
-        }
-        double result   =   (txpower*txtime)+(idlepower*data.RTT)+(data.maxCpuPower*(idlepower/scalingFactor));
+    public double calculateOffloadingConsumption(double txtime,double localComputationTime){
+        double result   =   (this.txPower*txtime)+(2*this.idlePower*this.RTT)+(localComputationTime*(this.idlePower/scalingFactor));
         return result;
     }
 }

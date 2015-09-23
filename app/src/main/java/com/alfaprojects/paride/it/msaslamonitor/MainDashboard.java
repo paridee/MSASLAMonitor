@@ -115,8 +115,8 @@ public class MainDashboard extends ActionBarActivity {
                 PingTask aTask = new PingTask(device);
                 aTask.aTextView = (TextView) findViewById(R.id.connection2);
 
-                //TODO aTask.execute(""+Singletons.serverip);
-                aTask.execute("8.8.8.8");
+                aTask.execute(""+Singletons.serverip);
+                //TODO aTask.execute("8.8.8.8");
                 activeTasks.add(this);
                 activeTasks.add(aTask);
                 //launch speedtest (demo image)

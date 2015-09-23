@@ -42,6 +42,10 @@ public class TaskInstance extends Task {
 		this.rawdata.put(key, values);
 	}
 
+	public void resetRawData(){
+		this.rawdata	=	new HashMap<String,double[]>();
+	}
+
 	public int getDataSize(){
 		int tempvalue	=	0;
 		Set keyset	= this.rawdata.keySet();

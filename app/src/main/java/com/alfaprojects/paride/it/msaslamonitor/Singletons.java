@@ -47,7 +47,7 @@ public class Singletons {
     public static int     scalingfactor                   =     900;
     public static int     simulatedTimeStep               =     900000;
     public static Context anApplicationContext;
-    public static String serverip   =   "10.200.93.235";
+    public static String serverip   =   "192.168.43.227";
 
     public static int getLocalTasks() {
         return localTasks;

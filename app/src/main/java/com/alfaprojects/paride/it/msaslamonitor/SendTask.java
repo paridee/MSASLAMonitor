@@ -22,16 +22,19 @@ import java.util.List;
 /**
  * Created by paride on 01/09/15.
  */
-public class TestJson extends AsyncTask {
+public class SendTask extends AsyncTask {
+    String  jsonString;
+    public SendTask(String json){
+        super();
+        this.jsonString =   json;
+    }
     @Override
     protected Object doInBackground(Object[] params) {
-        TaskInstance pippo  =   null;//new TaskInstance(1,"sumA",100,1,new Date(),new Date());
-        String pippostr     =   pippo.generateJson();
         HttpClient httpClient = new DefaultHttpClient();
         HttpPost httpPost = new HttpPost("http://"+Singletons.serverip+":8080/ServerMSA/MSAServlet");
         StringEntity    entity  =   null;
         try {
-            entity  =   new StringEntity(pippostr);
+            entity  =   new StringEntity(jsonString);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }

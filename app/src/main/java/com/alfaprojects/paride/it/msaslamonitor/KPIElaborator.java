@@ -95,10 +95,12 @@ public class KPIElaborator{
         if(localtime>maxlocaltime){
             //TODO OFFLOAD
             Singletons.setOffloadedTasks();
-            Singletons.setSavedEnergy((int)saving);
+            Singletons.setSavedEnergy((int) saving);
             System.out.println("KPIELABORATOR  vado in offload");
             System.out.println("KPIELABORATOR risparmio calcolato " + saving);
             System.out.println("KPIELABORATOR consumo calcolato OFFLOAD " + myOffloadingFunction.calculateOffloadingConsumption(txtime,localtime));
+            SendTask sendTask   =   new SendTask(subject.generateJson());
+            sendTask.execute();
         }
         else{
             Singletons.setLocalTasks();
@@ -117,9 +119,10 @@ public class KPIElaborator{
                 System.out.println("KPIElaborator task vuoto!!!");
             }
             subject.setProcesseddata(solution);
-            System.out.println("KPIELABORATOR  risultato: "+solution);
-            //TODO SEND TO SERVER (only solution)
-
+            System.out.println("KPIELABORATOR  risultato: " + solution);
+            subject.resetRawData();
+            SendTask sendTask   =   new SendTask(subject.generateJson());
+            sendTask.execute();
             double consumption   =   localtime*data.maxCpuPower;
             System.out.println("KPIELABORATOR consumo calcolato LOCALE " + consumption);
         }

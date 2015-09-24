@@ -8,4 +8,7 @@
     <string name="cpuPower">Cpu power</string>
     <string name="wifiIdle">WiFi Idle Power</string>
     <string name="radioIdle">Cellular Idle Power</string>
+    <string name="radio_consumption">Radio devices consumption</string>
+    <string name="CPU_consumption">CPU consumption</string>
+    <string name="battery_level">Battery level</string>
 </resources>

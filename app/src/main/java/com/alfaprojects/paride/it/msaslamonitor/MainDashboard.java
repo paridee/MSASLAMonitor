@@ -19,6 +19,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
 import com.echo.holographlibrary.Bar;
@@ -28,6 +29,8 @@ import com.echo.holographlibrary.LineGraph;
 import com.echo.holographlibrary.LinePoint;
 import com.echo.holographlibrary.PieGraph;
 import com.echo.holographlibrary.PieSlice;
+import com.getbase.floatingactionbutton.FloatingActionButton;
+import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -58,7 +61,9 @@ public class MainDashboard extends ActionBarActivity {
         @Override
         public void onReceive(Context ctxt, Intent intent) {
             int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
-            currentDevice.batterylevel  =   level;
+            if(Singletons.simulatedTimeStep==1) {   //if battery level is simulated skip
+                currentDevice.batterylevel = level;
+            }
             PieGraph pg = (PieGraph)findViewById(R.id.batterylevelgraph);
             pg.removeSlices();
             PieSlice slice = new PieSlice();
@@ -500,11 +505,30 @@ public class MainDashboard extends ActionBarActivity {
     protected void onStart() {
         super.onStart();
 
-        ShellService aService   =   new ShellService(this,currentDevice);
+        final ShellService aService   =   new ShellService(this,currentDevice);
         aService.aContext   =   this.getApplicationContext();
         aService.tv         =   (TextView)this.findViewById(R.id.connection);
-        aService.execute();
-
+        final FloatingActionsMenu     choicemenu      =   (FloatingActionsMenu)this.findViewById(R.id.famChoice);
+        FloatingActionButton    standardButton  =   (FloatingActionButton)this.findViewById(R.id.fabStandard);
+        FloatingActionButton    emulationButton =   (FloatingActionButton)this.findViewById(R.id.fabEmulation);
+        standardButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                System.out.println("MainDashboard: esecuzione standard");
+                choicemenu.collapseImmediately();
+                Singletons.simulatedTimeStep    =   1;
+                choicemenu.setEnabled(false);
+            }
+        });
+        emulationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                System.out.println("MainDashboard: esecuzione simulata");
+                choicemenu.collapseImmediately();
+                choicemenu.setEnabled(false);
+                aService.execute();
+            }
+        });
 
         //TestJson testJson=  new TestJson();
         //testJson.execute();

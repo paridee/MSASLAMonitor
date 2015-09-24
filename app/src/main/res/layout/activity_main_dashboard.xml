@@ -174,7 +174,7 @@
         </LinearLayout>
     </ScrollView>
     <com.getbase.floatingactionbutton.FloatingActionsMenu
-        android:id="@+id/right_labels"
+        android:id="@+id/famChoice"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         fab:fab_addButtonColorNormal="@color/white"
@@ -190,6 +190,7 @@
         <com.getbase.floatingactionbutton.FloatingActionButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:id="@+id/fabStandard"
             fab:fab_colorNormal="@color/white"
             fab:fab_title="Start service (standard)"
             fab:fab_colorPressed="@color/white_pressed"/>
@@ -197,6 +198,7 @@
         <com.getbase.floatingactionbutton.FloatingActionButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:id="@+id/fabEmulation"
             fab:fab_colorNormal="@color/white"
             fab:fab_size="mini"
             fab:fab_title="Time emulation mode"

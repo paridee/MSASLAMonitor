@@ -39,7 +39,7 @@ public class DeviceData {
     public double cellularmaxpower  =   0;
     public double scalingfactor =   1;
     public double wifilevel;
-    public double batterylevel;
+    public double batterylevel  =   0;
     public double highbatterythreshold  =   30;
     public double highwifithreshold     =   -120;
     public Context appContext;

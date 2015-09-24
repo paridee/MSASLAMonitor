@@ -1,5 +1,6 @@
 package com.alfaprojects.paride.it.msaslamonitor;
 
+import android.bluetooth.BluetoothClass;
 import android.content.Context;
 import android.util.Log;
 import android.widget.TextView;
@@ -113,6 +114,10 @@ public class Singletons {
     }
 
     public static void advanceSimulatedTime(){
+        if(simulatedTimeStep==1){
+            currentSimulatedTime    =   new Date();
+            return;
+        }
         Calendar aCalendar  =   Calendar.getInstance();
         aCalendar.setTime(currentSimulatedTime);
         long millis =   aCalendar.getTimeInMillis();
@@ -281,5 +286,28 @@ public class Singletons {
         tvOffloadedTasks.setText("Total offloaded tasks: "+Singletons.getOffloadedTasks());
         tvPostponedTasks.setText("Total postponed tasks: "+Singletons.getPostponedTask());
         tvSavings.setText("Total energy saving: "+Singletons.getSavedEnergy());
+    }
+
+    public void advanceBatterySimulation(DeviceData data){
+        double actualLevel  =   data.batterylevel;
+        if(actualLevel<=0.02){
+            System.out.println("Low battery simulation level, recharge");
+            double chargeplus  =   GeneratoreCasuale.randInt(1,98);
+            chargeplus         =    chargeplus/100;
+            data.batterylevel   =   actualLevel+chargeplus;
+        }
+        else{
+            double dado        =    GeneratoreCasuale.randInt(0,10);
+            if(dado<3){
+                System.out.println("Low battery simulation level, recharge");
+                double chargeplus  =   GeneratoreCasuale.randInt(1,(int)(actualLevel*100));
+                chargeplus         =    chargeplus/100;
+                data.batterylevel   =   actualLevel+chargeplus;
+            }
+            else{
+                double batterydec   =   (0.04/3600000)*(this.simulatedTimeStep);
+                data.batterylevel   =   actualLevel-batterydec;
+            }
+        }
     }
 }

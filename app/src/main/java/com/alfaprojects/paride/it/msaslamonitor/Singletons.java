@@ -12,6 +12,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -49,6 +50,13 @@ public class Singletons {
     public static int     simulatedTimeStep               =     900000;
     public static Context anApplicationContext;
     public static String serverip   =   "192.168.43.227";
+    public static String userEmailAddress;
+
+    public static String getStringFromDate(Date aDate){
+        java.text.DateFormat df = new java.text.SimpleDateFormat("dd/MM/yyyy hh:mm", Locale.ITALY);
+        return  df.format(aDate);
+    }
+
 
     public static int getLocalTasks() {
         return localTasks;

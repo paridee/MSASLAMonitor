@@ -89,8 +89,8 @@ public class SpeedTestUploadTask extends AsyncTask {
         System.out.println("SPEEDTESTUPLOAD");
         String pippostr     =   sb.toString();
         HttpClient httpClient = new DefaultHttpClient();
-        //HttpPost httpPost = new HttpPost("http://www.trenitalia.com");
-        HttpPost httpPost = new HttpPost("http://"+Singletons.serverip+":8080/ServerMSA/SpeedTest");
+        HttpPost httpPost = new HttpPost("http://www.trenitalia.com");
+        //HttpPost httpPost = new HttpPost("http://"+Singletons.serverip+":8080/ServerMSA/SpeedTest");
         StringEntity entity  =   null;
         try {
             entity  =   new StringEntity(pippostr);

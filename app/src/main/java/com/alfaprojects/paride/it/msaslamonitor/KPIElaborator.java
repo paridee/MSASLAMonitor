@@ -48,14 +48,6 @@ public class KPIElaborator{
             if (next.after(subject.getExpirationDate())){
                 result  =   0;
             }
-
-
-            //TODO REMOVE, JUST FOR TEST (i have low battery)
-            result  =   0;
-
-
-
-            //else return -1;
         }
         System.out.println("KPIELABORATOR elaboro ");
         //if (wifilevel > -127) {

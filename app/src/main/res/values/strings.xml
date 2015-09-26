@@ -11,4 +11,8 @@
     <string name="radio_consumption">Radio devices consumption</string>
     <string name="CPU_consumption">CPU consumption</string>
     <string name="battery_level">Battery level</string>
+    <string name="email_address">Insert your email address</string>
+    <string name="btnEmail">Confirm</string>
+    <string name="title_activity_alarm_list">AlarmListActivity</string>
+    <string name="alarmList">Your alarm list</string>
 </resources>

@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiInfo;
@@ -15,11 +16,16 @@ import android.os.IBinder;
 import android.os.SystemClock;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.echo.holographlibrary.Bar;
@@ -31,6 +37,8 @@ import com.echo.holographlibrary.PieGraph;
 import com.echo.holographlibrary.PieSlice;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
+
+import org.w3c.dom.Text;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -56,14 +64,21 @@ public class MainDashboard extends ActionBarActivity {
     static KPIScheduler aScheduler  =   null;
     UsePattern pattern  =   null;
     Task testTask;
+    static boolean firstrun =   true;
+
+    CardView cpuCard;
+    CardView offLoadGraph;
+    CardView connCard;
+    CardView taskCard;
 
     private BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver(){
         @Override
         public void onReceive(Context ctxt, Intent intent) {
             int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
-            if(Singletons.simulatedTimeStep==1) {   //if battery level is simulated skip
+            if(Singletons.simulatedTimeStep==1||firstrun==true) {   //if battery level is simulated skip
                 currentDevice.batterylevel = level;
             }
+            firstrun    =   false;
             PieGraph pg = (PieGraph)findViewById(R.id.batterylevelgraph);
             pg.removeSlices();
             PieSlice slice = new PieSlice();
@@ -90,10 +105,11 @@ public class MainDashboard extends ActionBarActivity {
         MainDashboard aDashBoard;
         DeviceData device;
 
-        public ShellService(MainDashboard aDashBoard,DeviceData device) {
+        public ShellService(MainDashboard aDashBoard,DeviceData device,TextView aTv) {
             super();
             this.aDashBoard =   aDashBoard;
             this.device     =   device;
+            this.tv         =   aTv;
 
         }
 
@@ -120,8 +136,8 @@ public class MainDashboard extends ActionBarActivity {
                 PingTask aTask = new PingTask(device);
                 aTask.aTextView = (TextView) findViewById(R.id.connection2);
 
-                aTask.execute(""+Singletons.serverip);
-                //TODO aTask.execute("8.8.8.8");
+                //TODO aTask.execute(""+Singletons.serverip);
+                aTask.execute("8.8.8.8");
                 activeTasks.add(this);
                 activeTasks.add(aTask);
                 //launch speedtest (demo image)
@@ -164,6 +180,7 @@ public class MainDashboard extends ActionBarActivity {
                     int random  = (int)GeneratoreCasuale.randInt(900,72000);
                     testTask   =   new Task(1,"sumA/cardA",random,0.5);
                     testTask.setHeuristic("A", 10000, 1);
+                    publishCPUTimes(testTask.heurstics,testTask.keys);
                     ArrayList<TaskInstance> tasks   =   new ArrayList<>();
                     for(int i=0;i<2000;i++){
                         TaskInstance atask = new TaskInstance(testTask.getId(),testTask.getFormula(),testTask.getExpiration(),testTask.getThreshold(), Singletons.currentSimulatedTime,Singletons.currentSimulatedTime,testTask.getHeurstics(),testTask.getKeys());
@@ -203,8 +220,7 @@ public class MainDashboard extends ActionBarActivity {
                     Log.i("shellservice","esiste scheduler, totale task esistenti "+aScheduler.mytasks.size());
                 }
                 SystemClock.sleep(Singletons.getInSimulatedtime(30000));
-                ShellService newService =   new ShellService(this.aDashBoard,device);
-                newService.tv   =   tv;
+                ShellService newService =   new ShellService(this.aDashBoard,device,tv);
                 newService.aContext =   aContext;
                 AsyncTask task3 =   newService.execute();
                 return null;
@@ -304,10 +320,45 @@ public class MainDashboard extends ActionBarActivity {
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
        currentDevice   =   new DeviceData();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_dashboard);
+
+        final SharedPreferences sharedPreferences =   getSharedPreferences("slamonitor",Context.MODE_PRIVATE);
+        final CardView email              =   (CardView)findViewById(R.id.cvemail);
+        cpuCard                           =   (CardView)findViewById(R.id.cvCPUTimes);
+        offLoadGraph                      =   (CardView)findViewById(R.id.cvOFFLOAD);
+        connCard                          =   (CardView)findViewById(R.id.cvConnectionDatas);
+        taskCard                          =   (CardView)findViewById(R.id.cvTaskDatas);
+        final LinearLayout linearLayout   =   (LinearLayout)findViewById(R.id.llMain);
+        final FloatingActionsMenu     choicemenu      =   (FloatingActionsMenu)this.findViewById(R.id.famChoice);
+        if(sharedPreferences.contains("email")){
+            String currentEmail =   sharedPreferences.getString("email","");
+            if (!currentEmail.equals("")){
+                Singletons.userEmailAddress =   currentEmail;
+                linearLayout.removeView(email);
+            }
+        }
+        Button  emailButton =   (Button)findViewById(R.id.btnEmailConfitm);
+        if(emailButton!=null){
+            choicemenu.setEnabled(false);
+            emailButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    EditText editText                   =   (EditText)findViewById(R.id.etEmail);
+                    String emailadd                     =   editText.getText().toString();
+                    SharedPreferences.Editor anEditor   =   sharedPreferences.edit();
+                    anEditor.putString("email", emailadd);
+                    anEditor.commit();
+                    Singletons.userEmailAddress         =   emailadd;
+                    linearLayout.removeView(email);
+                    InputMethodManager inputMethodManager   =   (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputMethodManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                    choicemenu.setEnabled(true);
+                }
+            });
+        }
         //Singletons.calculatespeedparameter();
         this.registerReceiver(this.mBatInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         //TODO before using it ask the speed parameter to the server!!! (now a default value has been set)
@@ -491,7 +542,7 @@ public class MainDashboard extends ActionBarActivity {
         }
         li.setRangeY(0, (int)upperbound);
         li.setLineToFill(0);
-        System.out.println("parametri passati: max cpu power "+deviceData.maxCpuPower+" wifi idle "+deviceData.wifiidle+" wifi power "+deviceData.wifipower);
+        System.out.println("parametri passati: max cpu power " + deviceData.maxCpuPower + " wifi idle " + deviceData.wifiidle + " wifi power " + deviceData.wifipower);
         //System.out.println("VALORE PROCESSATO " + test);
     }
     @Override
@@ -504,20 +555,29 @@ public class MainDashboard extends ActionBarActivity {
     @Override
     protected void onStart() {
         super.onStart();
-
-        final ShellService aService   =   new ShellService(this,currentDevice);
-        aService.aContext   =   this.getApplicationContext();
-        aService.tv         =   (TextView)this.findViewById(R.id.connection);
+        taskCard        =   (CardView)findViewById(R.id.cvTaskDatas);
+        offLoadGraph    =   (CardView)findViewById(R.id.cvOFFLOAD);
+        connCard        =   (CardView)findViewById(R.id.cvConnectionDatas);
+        taskCard        =   (CardView)findViewById(R.id.cvTaskDatas);
+        final ShellService aService   =   new ShellService(this,currentDevice,(TextView)this.findViewById(R.id.connection));
+        this.enableViews(false);
         final FloatingActionsMenu     choicemenu      =   (FloatingActionsMenu)this.findViewById(R.id.famChoice);
+        aService.aContext   =   this.getApplicationContext();
         FloatingActionButton    standardButton  =   (FloatingActionButton)this.findViewById(R.id.fabStandard);
+        standardButton.setIcon(R.drawable.ic_animal55);
         FloatingActionButton    emulationButton =   (FloatingActionButton)this.findViewById(R.id.fabEmulation);
+        emulationButton.setIcon(R.drawable.ic_speedometer26);
+        final FloatingActionButton    alarmButton =   (FloatingActionButton)this.findViewById(R.id.fabAlarmLog);
+        alarmButton.setIcon(R.drawable.ic_exclamationmark);
         standardButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 System.out.println("MainDashboard: esecuzione standard");
                 choicemenu.collapseImmediately();
-                Singletons.simulatedTimeStep    =   1;
+                Singletons.simulatedTimeStep = 1;
                 choicemenu.setEnabled(false);
+                enableViews(true);
+                aService.execute();
             }
         });
         emulationButton.setOnClickListener(new View.OnClickListener() {
@@ -526,10 +586,21 @@ public class MainDashboard extends ActionBarActivity {
                 System.out.println("MainDashboard: esecuzione simulata");
                 choicemenu.collapseImmediately();
                 choicemenu.setEnabled(false);
+                enableViews(true);
                 aService.execute();
             }
         });
 
+        final Context appContext  =   getApplicationContext();
+        alarmButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent alarmlistintent  =   new Intent(appContext,AlarmListActivity.class);
+                alarmlistintent.putExtra("email",Singletons.userEmailAddress);
+                choicemenu.collapseImmediately();
+                startActivity(alarmlistintent);
+            }
+        });
         //TestJson testJson=  new TestJson();
         //testJson.execute();
 
@@ -559,5 +630,36 @@ public class MainDashboard extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void enableViews(boolean value){
+        LinearLayout linearLayout   =   (LinearLayout)findViewById(R.id.llMain);
+        if(value==false){
+            System.out.print("MainDashboard cardview prima "+cpuCard.toString());
+            linearLayout.removeView(cpuCard);
+            linearLayout.removeView(offLoadGraph);
+            linearLayout.removeView(connCard);
+            linearLayout.removeView(taskCard);
+            System.out.print("MainDashboard cardview dopo " + cpuCard.toString());
+        }
+        else{
+            linearLayout.addView(cpuCard);
+            linearLayout.addView(offLoadGraph);
+            linearLayout.addView(connCard);
+            linearLayout.addView(taskCard);
+        }
+    }
+
+    public void publishCPUTimes(HashMap<Integer,Double> heurstics,int[]keys){
+        ArrayList<Bar> points = new ArrayList<Bar>();
+        for(int i=0;i<keys.length;i++){
+            Bar d = new Bar();
+            d.setColor(getResources().getColor(R.color.blue_graph));
+            d.setName(keys[i] + "");
+            d.setValue(heurstics.get(keys[i]).floatValue());
+            points.add(d);
+        }
+        BarGraph g = (BarGraph)findViewById(R.id.bgCPU);
+        g.setBars(points);
     }
 }

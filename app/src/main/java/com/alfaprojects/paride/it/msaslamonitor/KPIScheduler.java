@@ -36,8 +36,12 @@ public class KPIScheduler extends AsyncTask {
             Singletons.advanceSimulatedTime();
             Singletons.advanceBatterySimulation(deviceData);
             Singletons.advanceConnectivitySimulation(deviceData);
+            Singletons.updateGraph(deviceData);
+
         }
     }
+
+
 
     @Override
     protected Object doInBackground(Object[] params) {

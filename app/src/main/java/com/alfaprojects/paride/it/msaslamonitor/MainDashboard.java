@@ -424,21 +424,23 @@ public class MainDashboard extends ActionBarActivity {
 
     public void updateWifiLevel(DeviceData data){
         TextView aview = (TextView) findViewById(R.id.wifilevel);
-        double level = WifiManager.calculateSignalLevel((int)data.wifilevel,
+        double level      = (int)data.wifilevel;
+        double printlevel = WifiManager.calculateSignalLevel((int)data.wifilevel,
                 100);
         if (level == -127) {
             aview.setText("Wifi not available");
             data.wifi   =   false;
+            aview.setTextColor(Color.parseColor("#CC0000"));
             return;
         } else if (level > currentDevice.highwifithreshold) {
             if(aview!=null){
-                aview.setText("Wifi level: " + level+" %");
-                aview.setTextColor(Color.parseColor("#CC0000"));
+                aview.setText("Wifi level: " + printlevel + " %");
+                aview.setTextColor(Color.parseColor("#99CC00"));
             }
         } else {
             if(aview!=null){
-                aview.setText("Wifi level: " + level+" %");
-                aview.setTextColor(Color.parseColor("#99CC00"));
+                aview.setText("Wifi low level: " + printlevel + " %");
+                aview.setTextColor(Color.parseColor("#CC0000"));
             }
         }
         data.wifi   =   true;

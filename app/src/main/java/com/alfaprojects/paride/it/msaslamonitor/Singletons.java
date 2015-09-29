@@ -308,7 +308,7 @@ public class Singletons {
             tvPostponedTasks.setText("Total postponed tasks: "+Singletons.getPostponedTask());
         }
         if(tvSavings!=null){
-            tvSavings.setText("Total energy saving: "+Singletons.getSavedEnergy());
+            tvSavings.setText("Total energy saving: " + Singletons.getSavedEnergy());
         }
     }
 
@@ -351,11 +351,11 @@ public class Singletons {
         else {
             slice.setColor(Color.parseColor("#CC0000"));
         }
-        slice.setValue((int)data.batterylevel);
+        slice.setValue((int) data.batterylevel);
         pg.addSlice(slice);
         slice = new PieSlice();
         slice.setColor(Color.WHITE);
-        slice.setValue(100-(int)data.batterylevel);
+        slice.setValue(100 - (int) data.batterylevel);
         pg.addSlice(slice);
     }
 
@@ -364,14 +364,49 @@ public class Singletons {
         int dado        =    GeneratoreCasuale.randInt(0,10);
         if(dado<2){
             data.wifi   =   true;
-            int dadoint        =    GeneratoreCasuale.randInt(50,60);;
+            int dadoint        =    GeneratoreCasuale.randInt(50,60);
             data.wifilevel     =    -dadoint;
         }
         else{
             data.wifi       =   false;
             data.wifilevel  =   -127;
         }
-        System.out.println("Singletons.java simulating connevtivity environment wifi availability "+data.wifi+" signal level "+data.wifilevel);
+        System.out.println("Singletons.java simulating connevtivity environment wifi availability " + data.wifi + " signal level " + data.wifilevel);
         dashboard.updateWifiLevel(data);
+        int dlSimulatedBW   =       GeneratoreCasuale.randInt(100,1000000);
+        int ulSimulatedBW   =       GeneratoreCasuale.randInt(20,100000);
+        data.bandwidthDL    =       (double)dlSimulatedBW/100000;
+        data.bandwidthUL    =       (double)ulSimulatedBW/100000;
+        updateBWTextViews(data);
+        int dadoping        =    GeneratoreCasuale.randInt(1,10000);
+        updateTVRTT(dadoping,data," test ");
+    }
+
+    public static void updateBWTextViews(DeviceData data){
+        TextView dlTextView =   (TextView)dashboard.findViewById(R.id.connection3);
+        dlTextView.setText("DL Bandwidth "+data.bandwidthDL+" Mb/s");
+        dlTextView =   (TextView)dashboard.findViewById(R.id.connection4);
+        dlTextView.setText("UL Bandwidth " + data.bandwidthUL + " Mb/s");
+        TextView tvConn     =   (TextView)dashboard.findViewById(R.id.connection);
+        if(data.wifilevel>-127){
+            tvConn.setText("Simulation WiFi");
+        }
+        else{
+            tvConn.setText("Simulation Cellular");
+        }
+    }
+
+    public static void updateTVRTT(double value,DeviceData data,String endpoint) {
+        TextView pingView   =   ((TextView)dashboard.findViewById(R.id.connection2));
+        if(value>200)
+            pingView.setTextColor(Color.parseColor("#FF3D33"));
+        else if (value>50){
+            pingView.setTextColor(Color.parseColor("#FFBB33"));
+        }
+        else{
+            pingView.setTextColor(Color.parseColor("#99CC00"));
+        }
+        pingView.setText("RTT "+endpoint+" "+value+"ms");
+        data.RTT  =   value;
     }
 }

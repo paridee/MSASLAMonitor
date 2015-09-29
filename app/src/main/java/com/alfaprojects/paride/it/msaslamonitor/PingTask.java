@@ -103,17 +103,7 @@ class PingTask extends AsyncTask<String, Void, Void> {
                     if(results.length>1){
                         System.out.println(results[0]);
                         double value   =   Double.parseDouble(results[0]);
-                        if(value>200)
-                            this.aTextView.setTextColor(Color.parseColor("#FF3D33"));
-                        else if (value>50){
-                            this.aTextView.setTextColor(Color.parseColor("#FFBB33"));
-                        }
-                        else{
-                            this.aTextView.setTextColor(Color.parseColor("#99CC00"));
-                        }
-                        this.aTextView.setText("RTT "+this.endpoint+" "+results[0]+"ms");
-                        this.RTT    =   Double.parseDouble(results[0]);
-                        this.device.RTT  =   this.RTT;
+                        Singletons.updateTVRTT(value,device,this.endpoint);
                         mProcess.destroy();
                         return;
                     }

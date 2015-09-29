@@ -113,11 +113,11 @@ public enum GeneratoreCasuale {
          
     public static final Random defaultR = new Random(); 
     
-    public static double randInt(int min, int max) {
+    public static int randInt(int min, int max) {
 
         // NOTE: Usually this should be a field rather than a method
         // variable so that it is not re-seeded every call.
-        Random rand = new Random();
+        Random rand = new Random(System.currentTimeMillis());
 
         // nextInt is normally exclusive of the top value,
         // so add 1 to make it inclusive

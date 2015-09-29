@@ -2,8 +2,12 @@ package com.alfaprojects.paride.it.msaslamonitor;
 
 import android.bluetooth.BluetoothClass;
 import android.content.Context;
+import android.graphics.Color;
 import android.util.Log;
 import android.widget.TextView;
+
+import com.echo.holographlibrary.PieGraph;
+import com.echo.holographlibrary.PieSlice;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -51,6 +55,8 @@ public class Singletons {
     public static Context anApplicationContext;
     public static String serverip   =   "192.168.43.227";
     public static String userEmailAddress;
+    public static String GCMToken;
+    private static AlarmSerializer sqLiteSerializer=null;
 
     public static String getStringFromDate(Date aDate){
         java.text.DateFormat df = new java.text.SimpleDateFormat("dd/MM/yyyy hh:mm", Locale.ITALY);
@@ -289,33 +295,83 @@ public class Singletons {
         TextView tvLocalTasks       =   (TextView)  dashboard.findViewById(R.id.tvLocalTasks);
         TextView tvOffloadedTasks   =   (TextView)  dashboard.findViewById(R.id.tvOffloadedTasks);
         TextView tvSavings          =   (TextView)  dashboard.findViewById(R.id.tvSavedEnergy);
-        tvTotalTasks.setText("Total tasks instances managed: "+Singletons.getProcessedTasks());
-        tvLocalTasks.setText("Total local tasks: "+Singletons.getLocalTasks());
-        tvOffloadedTasks.setText("Total offloaded tasks: "+Singletons.getOffloadedTasks());
-        tvPostponedTasks.setText("Total postponed tasks: "+Singletons.getPostponedTask());
-        tvSavings.setText("Total energy saving: "+Singletons.getSavedEnergy());
+        if(tvTotalTasks!=null){
+            tvTotalTasks.setText("Total tasks instances managed: "+Singletons.getProcessedTasks());
+        }
+        if(tvLocalTasks!=null){
+            tvLocalTasks.setText("Total local tasks: "+Singletons.getLocalTasks());
+        }
+        if(tvOffloadedTasks!=null){
+            tvOffloadedTasks.setText("Total offloaded tasks: "+Singletons.getOffloadedTasks());
+        }
+        if(tvPostponedTasks!=null){
+            tvPostponedTasks.setText("Total postponed tasks: "+Singletons.getPostponedTask());
+        }
+        if(tvSavings!=null){
+            tvSavings.setText("Total energy saving: "+Singletons.getSavedEnergy());
+        }
     }
 
-    public void advanceBatterySimulation(DeviceData data){
+    /*
+ * Singleton for SQLiteSerializer.
+ * @return the SQLiteSerializer instance.
+ */
+    public static AlarmSerializer getDBSerializer(Context aContext) {
+
+        if (sqLiteSerializer == null) {
+            sqLiteSerializer = new AlarmSerializer(aContext, "alarm.db");
+            sqLiteSerializer.open();
+        }
+        return sqLiteSerializer;
+    }
+
+    public static void advanceBatterySimulation(DeviceData data){
         double actualLevel  =   data.batterylevel;
-        if(actualLevel<=0.02){
+        if(actualLevel<=2){
             System.out.println("Low battery simulation level, recharge");
-            double chargeplus  =   GeneratoreCasuale.randInt(1,98);
-            chargeplus         =    chargeplus/100;
+            int chargeplus  =   GeneratoreCasuale.randInt(1,98);
             data.batterylevel   =   actualLevel+chargeplus;
         }
         else{
-            double dado        =    GeneratoreCasuale.randInt(0,10);
-            if(dado<3){
-                System.out.println("Low battery simulation level, recharge");
-                double chargeplus  =   GeneratoreCasuale.randInt(1,(int)(actualLevel*100));
-                chargeplus         =    chargeplus/100;
-                data.batterylevel   =   actualLevel+chargeplus;
+            double batterydec   = 4* simulatedTimeStep/3600000;
+            data.batterylevel   =   actualLevel-batterydec;
+            System.out.println("Low battery simulation level discharging to "+actualLevel);
             }
-            else{
-                double batterydec   =   (0.04/3600000)*(this.simulatedTimeStep);
-                data.batterylevel   =   actualLevel-batterydec;
-            }
+
+
+
+        //Update battery pie chart
+
+        PieGraph pg = (PieGraph)dashboard.findViewById(R.id.batterylevelgraph);
+        pg.removeSlices();
+        PieSlice slice = new PieSlice();
+        if(data.batterylevel>data.highbatterythreshold){
+            slice.setColor(Color.parseColor("#99CC00"));
         }
+        else {
+            slice.setColor(Color.parseColor("#CC0000"));
+        }
+        slice.setValue((int)data.batterylevel);
+        pg.addSlice(slice);
+        slice = new PieSlice();
+        slice.setColor(Color.WHITE);
+        slice.setValue(100-(int)data.batterylevel);
+        pg.addSlice(slice);
+    }
+
+    //simulates connectivity environment, wifi availability and //// TODO: 29/09/15 bandwidth
+    public static void advanceConnectivitySimulation(DeviceData data){
+        int dado        =    GeneratoreCasuale.randInt(0,10);
+        if(dado<2){
+            data.wifi   =   true;
+            int dadoint        =    GeneratoreCasuale.randInt(50,60);;
+            data.wifilevel     =    -dadoint;
+        }
+        else{
+            data.wifi       =   false;
+            data.wifilevel  =   -127;
+        }
+        System.out.println("Singletons.java simulating connevtivity environment wifi availability "+data.wifi+" signal level "+data.wifilevel);
+        dashboard.updateWifiLevel(data);
     }
 }

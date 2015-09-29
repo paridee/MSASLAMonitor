@@ -9,6 +9,7 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Layout;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -19,6 +20,20 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.android.gms.iid.InstanceID;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -33,15 +48,28 @@ public class AlarmListActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alarm_list);
+        AlarmSerializer dbSerializer = Singletons.getDBSerializer(this.getApplicationContext());
+        dbSerializer.open();
+        ArrayList<TaskInstance> tasks   =   dbSerializer.getAllAlarms();
+        if(tasks.size()==0){
+            //TODO TESTING
+            for(int i=0;i<4;i++){
+                JSONObject testObj  =   new JSONObject();
+                try {
+                    testObj.put("to",Singletons.GCMToken);
+                    JSONObject innerObj =   new JSONObject();
+                    innerObj.put("message","task di test numero "+i);
+                    TaskInstance aTask  =   new TaskInstance(i,null,i*1000,i+3.2,new Date(),new Date(),null,null);
+                    innerObj.put("json", aTask.generateJson());
+                    testObj.put("data",innerObj);
+                    TestMessageTask sendTask    =   new TestMessageTask(testObj.toString());
+                    sendTask.execute();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
 
-        //TODO TESTING PURPOSE
-        ArrayList<TaskInstance> test    =   new ArrayList<>();
-        TaskInstance            t2      =   new TaskInstance(1,null,5000,3.2,new Date(),new Date(),null,null);
-        TaskInstance            t3      =   new TaskInstance(2,null,5000,3.2,new Date(),new Date(),null,null);
-        TaskInstance            t1      =   new TaskInstance(3,null,5000,3.2,new Date(),new Date(),null,null);
-        test.add(t1);
-        test.add(t2);
-        test.add(t3);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
 
@@ -54,7 +82,7 @@ public class AlarmListActivity extends ActionBarActivity {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         // specify an adapter (see also next example)
-        mAdapter = new MyAdapter(test);
+        mAdapter = new MyAdapter(tasks);
         mRecyclerView.setAdapter(mAdapter);
     }
 
@@ -79,4 +107,6 @@ public class AlarmListActivity extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+
 }

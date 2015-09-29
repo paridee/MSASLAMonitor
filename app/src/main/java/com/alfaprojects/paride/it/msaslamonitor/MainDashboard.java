@@ -37,6 +37,8 @@ import com.echo.holographlibrary.PieGraph;
 import com.echo.holographlibrary.PieSlice;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 
 import org.w3c.dom.Text;
 
@@ -57,7 +59,7 @@ l'update del grafico viene fatto dopo lo speedtest! quindi dopo lo speedtest (ch
 lenta) ho tutti i dati per continuare il processamento
  */
 public class MainDashboard extends ActionBarActivity {
-
+    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     DeviceData currentDevice;   //status of the current device
     double upperbound = -1; //graph y upper bound
     ArrayList<AsyncTask> activeTasks    =   new ArrayList<AsyncTask>();
@@ -325,6 +327,11 @@ public class MainDashboard extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_dashboard);
 
+        if (checkPlayServices()) {
+            // Start IntentService to register this application with GCM.
+            Intent intent = new Intent(this, RegistrationIntentService.class);
+            startService(intent);
+        }
         final SharedPreferences sharedPreferences =   getSharedPreferences("slamonitor",Context.MODE_PRIVATE);
         final CardView email              =   (CardView)findViewById(R.id.cvemail);
         cpuCard                           =   (CardView)findViewById(R.id.cvCPUTimes);
@@ -378,19 +385,9 @@ public class MainDashboard extends ActionBarActivity {
 
                     for (ScanResult result : results) {
                         if (result.BSSID.equals(wifi.getConnectionInfo().getBSSID())) {
-                            int level = WifiManager.calculateSignalLevel(wifi.getConnectionInfo().getRssi(),
-                                    result.level);
+                            int level   =   wifi.getConnectionInfo().getRssi();
                             currentDevice.wifilevel = level;
-                            TextView aview = (TextView) findViewById(R.id.wifilevel);
-                            if (level == -127) {
-                                aview.setText("Wifi not available");
-                            } else if (level > currentDevice.highbatterythreshold) {
-                                aview.setText("Wifi level: " + level);
-                                aview.setTextColor(Color.parseColor("#CC0000"));
-                            } else {
-                                aview.setText("Wifi level: " + level);
-                                aview.setTextColor(Color.parseColor("#99CC00"));
-                            }
+                            updateWifiLevel(currentDevice);
                         }
 
                     }
@@ -423,6 +420,28 @@ public class MainDashboard extends ActionBarActivity {
         }
         BarGraph g = (BarGraph)findViewById(R.id.graph2);
         g.setBars(points);*/
+    }
+
+    public void updateWifiLevel(DeviceData data){
+        TextView aview = (TextView) findViewById(R.id.wifilevel);
+        double level = WifiManager.calculateSignalLevel((int)data.wifilevel,
+                100);
+        if (level == -127) {
+            aview.setText("Wifi not available");
+            data.wifi   =   false;
+            return;
+        } else if (level > currentDevice.highwifithreshold) {
+            if(aview!=null){
+                aview.setText("Wifi level: " + level+" %");
+                aview.setTextColor(Color.parseColor("#CC0000"));
+            }
+        } else {
+            if(aview!=null){
+                aview.setText("Wifi level: " + level+" %");
+                aview.setTextColor(Color.parseColor("#99CC00"));
+            }
+        }
+        data.wifi   =   true;
     }
 
     private void printPowerProfile(DeviceData thisDevice) {
@@ -597,6 +616,7 @@ public class MainDashboard extends ActionBarActivity {
             public void onClick(View v) {
                 Intent alarmlistintent  =   new Intent(appContext,AlarmListActivity.class);
                 alarmlistintent.putExtra("email",Singletons.userEmailAddress);
+                alarmlistintent.putExtra("email",Singletons.userEmailAddress);
                 choicemenu.collapseImmediately();
                 startActivity(alarmlistintent);
             }
@@ -661,5 +681,20 @@ public class MainDashboard extends ActionBarActivity {
         }
         BarGraph g = (BarGraph)findViewById(R.id.bgCPU);
         g.setBars(points);
+    }
+    private boolean checkPlayServices() {
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        int resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (apiAvailability.isUserResolvableError(resultCode)) {
+                apiAvailability.getErrorDialog(this, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST)
+                        .show();
+            } else {
+                System.out.println("MainDashboard.java This device is not supported.");
+                finish();
+            }
+            return false;
+        }
+        return true;
     }
 }

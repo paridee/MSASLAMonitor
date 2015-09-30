@@ -17,6 +17,7 @@
 package com.alfaprojects.paride.it.msaslamonitor;
 
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -29,13 +30,16 @@ import com.google.android.gms.iid.InstanceID;
 
 //import org.apache.commons.io.IOUtils;
 //import org.apache.commons.io.IOUtils;
+import org.json.JSONException;
 import org.json.JSONObject;
+import org.xml.sax.helpers.LocatorImpl;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.Exception;import java.lang.Override;import java.lang.String;import java.lang.System;import java.net.HttpURLConnection;
 import java.net.URL;//import gcm.play.android.samples.com.gcmquickstart.QuickstartPreferences;import gcm.play.android.samples.com.gcmquickstart.R;
+import java.util.Date;
 
 public class RegistrationIntentService extends IntentService {
 
@@ -94,10 +98,26 @@ public class RegistrationIntentService extends IntentService {
      * @param token The new token.
      */
     private void sendRegistrationToServer(String token) {
-        // Add custom implementation, as needed.
+        // Add custom implementation, as needed
+        JSONObject testObj  =   new JSONObject();
+        try {
+            testObj.put("token",token);
+            SharedPreferences sharedPreferences =   getSharedPreferences("slamonitor", Context.MODE_PRIVATE);
+            if(sharedPreferences.contains("email")) {
+                String currentEmail = sharedPreferences.getString("email", "");
+                testObj.put("mail", currentEmail);
+                TestMessageTask sendTask = new TestMessageTask(testObj.toString());
+                sendTask.execute();
+                LoginTask loginTask =   new LoginTask(testObj.toString());
+                loginTask.execute();
+                System.out.println("RegistrationIntentService.java invio json login "+testObj.toString());
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
-    /**
+        /**
      * Subscribe to any GCM topics of interest, as defined by the TOPICS constant.
      *
      * @param token GCM token

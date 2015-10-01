@@ -233,15 +233,15 @@ public class MainDashboard extends ActionBarActivity {
                         testTask.keys       =   oldTask.keys;
                         TaskInstance atask = new TaskInstance(testTask.getId(),testTask.getFormula(),testTask.getExpiration(),testTask.getThreshold(), Singletons.currentSimulatedTime,Singletons.currentSimulatedTime,oldTask.getHeurstics(),oldTask.getKeys());
                         atask.debugTag     =    "kind2";
-                        int k=1+GeneratoreCasuale.randInt(1,100000);//(int)GeneratoreCasuale.randInt(1,50000);
+                        int k=1+GeneratoreCasuale.randInt(1,5000);//(int)GeneratoreCasuale.randInt(1,50000);
                         double[] testdata	=	new double[k];
                         for(int j=0;j<k;j++){
                             testdata[j]			=	j%50;
                         }
                         atask.addToRawData("A", testdata);;
-                        aScheduler.mytasks.add(atask);
+                        aScheduler.addToTaskList(atask);
                     }
-                    Log.i("shellservice","esiste scheduler, totale task esistenti "+aScheduler.mytasks.size());
+                    Log.i("shellservice","esiste scheduler, totale task esistenti "+aScheduler.getTaskListSize());
                 }
                 SystemClock.sleep(Singletons.getInSimulatedtime(30000));
                 ShellService newService =   new ShellService(this.aDashBoard,device,tv);

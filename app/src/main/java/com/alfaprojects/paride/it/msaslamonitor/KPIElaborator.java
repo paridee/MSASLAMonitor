@@ -85,7 +85,7 @@ public class KPIElaborator{
             Singletons.setOffloadedTasks();
             Singletons.setSavedEnergy((int) saving);
             System.out.println("KPIELABORATOR  vado in offload");
-            System.out.println("KPIELABORATOR risparmio calcolato " + saving);
+            System.out.println("KPIELABORATOR risparmio calcolato " + saving+" mAs");
             System.out.println("KPIELABORATOR consumo calcolato OFFLOAD " + myOffloadingFunction.calculateOffloadingConsumption(txtime,localtime));
             SendTask sendTask   =   new SendTask(subject.generateJson());
             sendTask.execute();

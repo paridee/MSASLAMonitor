@@ -45,62 +45,99 @@ public class Decisor {
 		c.setTime(later);
 		int dayOfWeekLater	=	c.get(Calendar.DAY_OF_WEEK)-1;
 		int quarterOfDayLat	=	this.getQuarterofDay(later);
-		int batteryafter	=	0;	//default low battery
-		int	wifiafter		=	0;	//default no wifi
 
 
 		if(dayOfWeekLater<dayOfWeekNow){
-			System.out.println("Decisor case not implemented");
-		}
-
-
-		for(int i=dayOfWeekNow;i<=dayOfWeekLater;i++){
-			if(dayOfWeekNow==dayOfWeekLater){
-				for(int j=quarterOfDayNow;j<=quarterOfDayLat;j++){
-					if(this.wifimatrix[i][j]==1){
-						wifiafter	=	1;
+			System.out.println("Decisor first case day of week now "+dayOfWeekNow+" later "+dayOfWeekLater);
+			for(int i=dayOfWeekNow;i<7;i++){
+				//in the inital day check only a part
+				if(i==dayOfWeekNow){ //implicit: dayOfWeekNow!=dayOfWeekLater so i check for the whole initial day
+					for(int j=quarterOfDayNow;j<96;j++){
+						int value	=	decide(battery_now,wifi_now,this.batterymatrix[i][j],this.wifimatrix[i][j]);
+						if(value	==	0){
+							return value;
+						}
 					}
-					if(this.batterymatrix[i][j]==1){
-						batteryafter=	1;
+				}
+				//in the remaining days check the whole day
+				else{
+					for(int j=0;j<96;j++){
+						int value	=	decide(battery_now,wifi_now,this.batterymatrix[i][j],this.wifimatrix[i][j]);
+						if(value	==	0){
+							return value;
+						}
 					}
 				}
 			}
-			else if(i==dayOfWeekNow){ //implicit: dayOfWeekNow!=dayOfWeekLater so i check for the whole initial day
-				for(int j=quarterOfDayNow;j<96;j++){
-					if(this.wifimatrix[i][j]==1){
-						wifiafter	=	1;
-					}
-					if(this.batterymatrix[i][j]==1){
-						batteryafter=	1;
-					}
-				}
-			}
-			else if(i==dayOfWeekLater){	//last day, i check from 00:00 to the final quarter of hour
-				for(int j=0;j<=quarterOfDayLat;j++){
-					if(this.wifimatrix[i][j]==1){
-						wifiafter	=	1;
-					}
-					if(this.batterymatrix[i][j]==1){
-						batteryafter=	1;
+			for(int i=0;i<dayOfWeekLater;i++){
+				if(i==dayOfWeekLater){	//last day, i check from 00:00 to the final quarter of hour
+					for(int j=0;j<=quarterOfDayLat;j++){
+						int value	=	decide(battery_now,wifi_now,this.batterymatrix[i][j],this.wifimatrix[i][j]);
+						if(value	==	0){
+							return value;
+						}
 					}
 				}
-			}
-			else{
-				for(int j=0;j<96;j++){
-					if(this.wifimatrix[i][j]==1){
-						wifiafter	=	1;
-					}
-					if(this.batterymatrix[i][j]==1){
-						batteryafter=	1;
+				//in the remaining days check the whole day
+				else{
+					for(int j=0;j<96;j++){
+						int value	=	decide(battery_now,wifi_now,this.batterymatrix[i][j],this.wifimatrix[i][j]);
+						if(value	==	0){
+							return value;
+						}
 					}
 				}
 			}
 		}
-		return decide(battery_now,wifi_now,batteryafter,wifiafter);		
+		else{
+			System.out.println("Decisor second case day of week now "+dayOfWeekNow+" later "+dayOfWeekLater);
+			for(int i=dayOfWeekNow;i<=dayOfWeekLater;i++){
+				if(dayOfWeekNow==dayOfWeekLater){
+					for(int j=quarterOfDayNow;j<=quarterOfDayLat;j++){
+						int value	=	decide(battery_now,wifi_now,this.batterymatrix[i][j],this.wifimatrix[i][j]);
+						if(value	==	0){
+							return value;
+						}
+					}
+				}
+				else if(i==dayOfWeekNow){ //implicit: dayOfWeekNow!=dayOfWeekLater so i check for the whole initial day
+					for(int j=quarterOfDayNow;j<96;j++){
+						int value	=	decide(battery_now,wifi_now,this.batterymatrix[i][j],this.wifimatrix[i][j]);
+						if(value	==	0){
+							return value;
+						}
+					}
+				}
+				else if(i==dayOfWeekLater){	//last day, i check from 00:00 to the final quarter of hour
+					for(int j=0;j<=quarterOfDayLat;j++){
+						int value	=	decide(battery_now,wifi_now,this.batterymatrix[i][j],this.wifimatrix[i][j]);
+						if(value	==	0){
+							return value;
+						}
+					}
+				}
+				else{
+					for(int j=0;j<96;j++){
+						int value	=	decide(battery_now,wifi_now,this.batterymatrix[i][j],this.wifimatrix[i][j]);
+						if(value	==	0){
+							return value;
+						}
+					}
+				}
+			}
+		}
+
+		return 1;
 	}
 	
 	//uso interno, NON usare esplicitamente
 	public int decide(int battery_now, int wifi_now, int battery_later, int wifi_later){
+		if(battery_later==2){
+			battery_later	=	0;	//replace don't care
+		}
+		if(wifi_later==2){
+			wifi_later	=	0;	//replace don't care
+		}
 		return this.decisionTable[battery_now][wifi_now][battery_later][wifi_later];
 	}
 	

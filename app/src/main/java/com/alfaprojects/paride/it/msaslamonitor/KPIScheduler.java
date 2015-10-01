@@ -7,6 +7,8 @@ import android.os.SystemClock;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by paride on 10/09/15.
@@ -16,9 +18,10 @@ public class KPIScheduler extends AsyncTask {
     DeviceData  deviceData;
     Decisor     decisor;
     int         polling;
-    public ArrayList<TaskInstance> mytasks;
+    private ArrayList<TaskInstance> mytasks;
     static boolean waitp   =   true;
     Context appContext;
+    ReentrantLock taskListLock   =   new ReentrantLock();
 
     public KPIScheduler(DeviceData data,ArrayList<TaskInstance> mytasks,Decisor aDecisor,int delay,Context appContext){
         this.deviceData =   data;
@@ -28,6 +31,18 @@ public class KPIScheduler extends AsyncTask {
         this.appContext =   appContext;
     }
 
+    public void addToTaskList(TaskInstance aTask){
+        taskListLock.lock();
+        mytasks.add(aTask);
+        taskListLock.unlock();
+    }
+
+    public int getTaskListSize(){
+        taskListLock.lock();
+        int size    =   mytasks.size();
+        taskListLock.unlock();
+        return size;
+    }
     @Override
     protected void onProgressUpdate(Object[] values) {
         super.onProgressUpdate(values);
@@ -66,6 +81,7 @@ public class KPIScheduler extends AsyncTask {
             }
 
             ArrayList<TaskInstance> launched    =   new ArrayList<TaskInstance>();
+            taskListLock.lock();
             for(int i=0;i<mytasks.size();i++){
                 System.out.println("KPIScheduler instanzio elaborator posizione "+i+" size array "+mytasks.size());
                 KPIElaborator elaborator    =   new KPIElaborator(this.decisor,this.deviceData,this.polling,mytasks.get(i));
@@ -79,12 +95,13 @@ public class KPIScheduler extends AsyncTask {
                     this.publishProgress();
                     launched.add(mytasks.get(i));
                 }
-                System.out.println("KPIScheduler esco dall'array ");
+                System.out.println("KPIScheduler esco dall'array launched "+launched.size()+" tasks");
             }
             for(int j=0;j<launched.size();j++){
                 System.out.println("KPIScheduler rimuovo ");
                 mytasks.remove(launched.get(j));
             }
+            taskListLock.unlock();
             System.out.println("KPIScheduler completato totale round task ");
 
         }

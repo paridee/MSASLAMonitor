@@ -35,19 +35,15 @@ public class KPIElaborator{
         }
         //decide if compute now or later
         int result =    aDecisor.decide(batterylevel,wifilevel,Singletons.currentSimulatedTime,subject.getExpirationDate());
-        System.out.println("KPIELABORATOR risultato dopo 1a decisione " + result);
+        Date next   =   new Date(Singletons.currentSimulatedTime.getTime()+delay);
+        //check if the next interval is AFTER task expiration date!
+        if (next.after(subject.getExpirationDate())){
+            result  =   0;
+        }
+        System.out.println("KPIELABORATOR risultato dopo 1a decisione " + result+" now "+Singletons.currentSimulatedTime.toString()+" expiration "+subject.getExpirationDate().toString());
         if(result==1){   //while i don't have to compute check again and sleep
             Singletons.setPostponedTask();
-            SystemClock.sleep(Singletons.getInSimulatedtime(delay));
-            Date now    =   Singletons.currentSimulatedTime;
-            result =    aDecisor.decide(batterylevel,wifilevel,now,subject.getExpirationDate());
-            System.out.println("KPIELABORATOR risultato dopo 1a decisione succ "+result);
-            Date    today   =  now;
-            Date next   =   new Date(today.getTime()+delay);
-            //check if the next interval is AFTER task expiration date!
-            if (next.after(subject.getExpirationDate())){
-                result  =   0;
-            }
+            return 0;
         }
         System.out.println("KPIELABORATOR elaboro ");
         //if (wifilevel > -127) {

@@ -47,6 +47,13 @@ public class Decisor {
 		int quarterOfDayLat	=	this.getQuarterofDay(later);
 		int batteryafter	=	0;	//default low battery
 		int	wifiafter		=	0;	//default no wifi
+
+
+		if(dayOfWeekLater<dayOfWeekNow){
+			System.out.println("Decisor case not implemented");
+		}
+
+
 		for(int i=dayOfWeekNow;i<=dayOfWeekLater;i++){
 			if(dayOfWeekNow==dayOfWeekLater){
 				for(int j=quarterOfDayNow;j<=quarterOfDayLat;j++){

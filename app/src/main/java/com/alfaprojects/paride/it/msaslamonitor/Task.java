@@ -10,6 +10,7 @@ public class Task {
 	private double	threshold;	//threshold could be not consistent with its value on DB, some divine entity could update the local value with DB value
 	public 	HashMap<Integer,Double> heurstics 	=	new HashMap<Integer,Double>();
 	public	int[]						keys	=	new int[20];
+
 	public Task(){
 		super();
 	}
@@ -96,7 +97,4 @@ public class Task {
 		return heurstics;
 	}
 
-	public void setHeurstics(HashMap<Integer, Double> heurstics) {
-		this.heurstics = heurstics;
-	}
 }

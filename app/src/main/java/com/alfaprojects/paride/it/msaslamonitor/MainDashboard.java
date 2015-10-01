@@ -139,24 +139,38 @@ public class MainDashboard extends ActionBarActivity {
                 aTask.aTextView = (TextView) findViewById(R.id.connection2);
 
                 //TODO aTask.execute(""+Singletons.serverip);
-                aTask.execute("8.8.8.8");
-                activeTasks.add(this);
-                activeTasks.add(aTask);
-                //launch speedtest (demo image)
-                SystemClock.sleep(10000);
+                //real world environment, read real values
+                if(Singletons.simulatedTimeStep==1){
+                    aTask.execute("8.8.8.8");
+                    activeTasks.add(this);
+                    activeTasks.add(aTask);
+                    //launch speedtest (demo image)
+                    SystemClock.sleep(10000);
+                    SpeedTestTask speedTestTask =   new SpeedTestTask(device);
+                    speedTestTask.aTv   =   (TextView) findViewById(R.id.connection3);
+                    activeTasks.add(speedTestTask);
+                    AsyncTask task2 =   speedTestTask.execute();
+                    SystemClock.sleep(10000);
+                    SpeedTestUploadTask uploadTask  =   new SpeedTestUploadTask(getApplicationContext(),device);
+                    uploadTask.aTv   =   (TextView)findViewById(R.id.connection4);
+                    uploadTask.execute();
+                    Object returnobj    =   uploadTask.result;
+                    System.out.println("ShellService: ho aspettato il risultato di uploadasynctask "+returnobj);
+                    activeTasks.add(uploadTask);
+                    SystemClock.sleep(10000);
+                }
+
+                //simulation environment, fake values
+                else{
+                    if(device.RTT==-1){
+                        device.RTT  =   10000;
+                        device.bandwidthUL  =   0.0000001;
+                        device.bandwidthDL  =   0.0000001;
+                    }
+                }
 
 
-                SpeedTestTask speedTestTask =   new SpeedTestTask(device);
-                speedTestTask.aTv   =   (TextView) findViewById(R.id.connection3);
-                activeTasks.add(speedTestTask);
-                AsyncTask task2 =   speedTestTask.execute();
-                SystemClock.sleep(10000);
-                SpeedTestUploadTask uploadTask  =   new SpeedTestUploadTask(getApplicationContext(),device);
-                uploadTask.aTv   =   (TextView)findViewById(R.id.connection4);
-                uploadTask.execute();
-                Object returnobj    =   uploadTask.result;
-                System.out.println("ShellService: ho aspettato il risultato di uploadasynctask "+returnobj);
-                activeTasks.add(uploadTask);
+
 
 /*
                 //TODO TEST DATI SIMULATI
@@ -172,7 +186,7 @@ public class MainDashboard extends ActionBarActivity {
                 this.publishProgress();
                 Singletons.updateGraph(this.device);*/
 
-                SystemClock.sleep(10000);
+
                 //start another service like this after 10 seconds than die
                 if (isCancelled()) return null;
                 //System.out.println("Dati elaborati wifi "+aService.isWifi+" speed "+speedTestTask.result+" RTT "+aTask.RTT );
@@ -184,8 +198,9 @@ public class MainDashboard extends ActionBarActivity {
                     testTask.setHeuristic("A", 10000, 1);
                     publishCPUTimes(testTask.heurstics,testTask.keys);
                     ArrayList<TaskInstance> tasks   =   new ArrayList<>();
-                    for(int i=0;i<2000;i++){
+                    for(int i=0;i<20;i++){
                         TaskInstance atask = new TaskInstance(testTask.getId(),testTask.getFormula(),testTask.getExpiration(),testTask.getThreshold(), Singletons.currentSimulatedTime,Singletons.currentSimulatedTime,testTask.getHeurstics(),testTask.getKeys());
+                        atask.debugTag     =    "kind1";
                         int k=i+1;//(int)GeneratoreCasuale.randInt(1,50000);
                         double[] testdata	=	new double[k];
                         for(int j=0;j<k;j++){
@@ -195,23 +210,30 @@ public class MainDashboard extends ActionBarActivity {
                         tasks.add(atask);
                     }
                     Log.i("shellservice","non esiste scheduler creo");
-                    int[][] hBatteryMatrix	=	pattern.getHighBatteryMatrix(pattern.startDate,pattern.finishDate);
+                    Log.i("ShellServicee","test task ha "+testTask.keys.length+" chiavi e valori "+testTask.heurstics.size());
+                    int[][] hBatteryMatrix	=	pattern.getHighBatteryMatrix(pattern.startDate, pattern.finishDate);
                     int[][] hWifiMatrix      =   pattern.getHighWifiMatrix(pattern.startDate, pattern.finishDate);
                     Decisor testd 	=	 new Decisor(hBatteryMatrix,hWifiMatrix);
-                    aScheduler  =   new KPIScheduler(currentDevice,tasks,testd,120000,this.aContext);
-                    ExecutorService anExecutor  =   java.util.concurrent.Executors.newFixedThreadPool(100);
+                    aScheduler  =   new KPIScheduler(device,tasks,testd,120000,this.aContext);
                     if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB)
-                        aScheduler.executeOnExecutor(anExecutor);
+                        aScheduler.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                     else
                         aScheduler.execute();
                 }
 
                 else{
-                    int random  = (int)GeneratoreCasuale.randInt(900,72000);
+                    int random;
                     Log.i("shellservice","esiste scheduler, aggiungo a task esistenti");
-                    for(int i=0;i<2000;i++){
-                        TaskInstance atask = new TaskInstance(testTask.getId(),testTask.getFormula(),testTask.getExpiration(),testTask.getThreshold(), Singletons.currentSimulatedTime,Singletons.currentSimulatedTime,testTask.getHeurstics(),testTask.getKeys());
-                        int k=1+i;//(int)GeneratoreCasuale.randInt(1,50000);
+                    Log.i("ShellServicee","giro successivo test task ha "+testTask.keys.length+" chiavi e valori "+testTask.heurstics.size());
+                    Task oldTask    =   testTask;
+                    for(int i=0;i<2;i++){
+                        random  = GeneratoreCasuale.randInt(900,1000*60*60*24*20);
+                        testTask   =   new Task(1,"sumA/cardA",random,0.5);
+                        testTask.heurstics  =   oldTask.heurstics;
+                        testTask.keys       =   oldTask.keys;
+                        TaskInstance atask = new TaskInstance(testTask.getId(),testTask.getFormula(),testTask.getExpiration(),testTask.getThreshold(), Singletons.currentSimulatedTime,Singletons.currentSimulatedTime,oldTask.getHeurstics(),oldTask.getKeys());
+                        atask.debugTag     =    "kind2";
+                        int k=1+GeneratoreCasuale.randInt(1,100000);//(int)GeneratoreCasuale.randInt(1,50000);
                         double[] testdata	=	new double[k];
                         for(int j=0;j<k;j++){
                             testdata[j]			=	j%50;
@@ -224,7 +246,10 @@ public class MainDashboard extends ActionBarActivity {
                 SystemClock.sleep(Singletons.getInSimulatedtime(30000));
                 ShellService newService =   new ShellService(this.aDashBoard,device,tv);
                 newService.aContext =   aContext;
-                AsyncTask task3 =   newService.execute();
+                if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB)
+                    newService.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                else
+                    newService.execute();
                 return null;
             }
 
@@ -598,7 +623,10 @@ public class MainDashboard extends ActionBarActivity {
                 Singletons.simulatedTimeStep = 1;
                 choicemenu.setEnabled(false);
                 enableViews(true);
-                aService.execute();
+                if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB)
+                    aService.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                else
+                    aService.execute();
             }
         });
         emulationButton.setOnClickListener(new View.OnClickListener() {
@@ -608,7 +636,10 @@ public class MainDashboard extends ActionBarActivity {
                 choicemenu.collapseImmediately();
                 choicemenu.setEnabled(false);
                 enableViews(true);
-                aService.execute();
+                if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB)
+                    aService.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                else
+                    aService.execute();
             }
         });
 

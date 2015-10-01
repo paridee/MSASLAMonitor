@@ -32,12 +32,13 @@ public class KPIScheduler extends AsyncTask {
     protected void onProgressUpdate(Object[] values) {
         super.onProgressUpdate(values);
         Singletons.updateTasksTextView();
-        if(values!=null){
-            Singletons.advanceSimulatedTime();
-            Singletons.advanceBatterySimulation(deviceData);
-            Singletons.advanceConnectivitySimulation(deviceData);
-            Singletons.updateGraph(deviceData);
-
+        if(values.length>0){
+            if((boolean) values[0]){
+                Singletons.advanceSimulatedTime();
+                Singletons.advanceBatterySimulation(deviceData);
+                Singletons.advanceConnectivitySimulation(deviceData);
+                Singletons.updateGraph(deviceData);
+            }
         }
     }
 
@@ -54,7 +55,7 @@ public class KPIScheduler extends AsyncTask {
                 if(!(deviceData.RTT==-1||deviceData.bandwidthUL==-1||deviceData.bandwidthDL==-1)){
                     waitp   =   false;
                 }
-                //System.out.println("KpiScheduler ASPETTO DEVICEDATA RTT "+deviceData.RTT+" UL "+deviceData.bandwidthUL+" DL "+deviceData.bandwidthDL);
+                System.out.println("KpiScheduler ASPETTO DEVICEDATA RTT "+deviceData.RTT+" UL "+deviceData.bandwidthUL+" DL "+deviceData.bandwidthDL);
             }
             System.out.println("KpiScheduler OTTENUTI DEVICEDATA");
             System.out.println("KpiScheduler s'e' svejatoooooooooooo lunghezza lista task " + mytasks.size());
@@ -73,6 +74,8 @@ public class KPIScheduler extends AsyncTask {
                 System.out.println("KPIScheduler completato round task "+mytasks.get(i).toString()+" con risultato "+completed);
                 if(completed==1) {
                     System.out.println("KPIScheduler inserisco in lista eliminazione ");
+                    Object[]    args    =   new Object[1];  //stub argument,signals that a simulation advance is needed
+                    args[0]             =   false;
                     this.publishProgress();
                     launched.add(mytasks.get(i));
                 }

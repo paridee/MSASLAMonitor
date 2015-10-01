@@ -15,6 +15,8 @@ public class TaskInstance extends Task {
 	private double 						processeddata	=	-1;
 	private HashMap<String,double[]> 	rawdata			=	new HashMap<String,double[]>();
 
+	public String						debugTag		=	"";
+
 	public TaskInstance(int id, String formula, int expiration,
 						double threshold, Date startDate, Date endDate,HashMap<Integer,Double> heurstics,int[] keys) {
 		super(id, formula, expiration, threshold);
@@ -100,6 +102,12 @@ public class TaskInstance extends Task {
 		if(size<keys[0]){
 			System.out.println("TaskInstance per il singolo elemento ci metto "+heurstics.get(keys[0]) +" indice "+0 +" ho numero di elementi: "+size);
 			return (heurstics.get(keys[(keys.length-1)])*this.getDataSize());
+		}
+		if(heurstics.get(keys[0])==null){
+			System.out.println("TaskInstance null heuristic type "+this.debugTag+" keys "+keys[0]+" "+keys[2]+" heuristics "+heurstics.size()+" valori chiavi "+keys.toString()+" verifica "+heurstics.keySet().toString());//TODO remove, debug istruction
+		}
+		else{
+			System.out.println("TaskInstance NOT null heuristic type "+this.debugTag);
 		}
 		double returnvalue	=	heurstics.get(keys[0]);;
 		for(int i=0;i<(keys.length-1);i++){

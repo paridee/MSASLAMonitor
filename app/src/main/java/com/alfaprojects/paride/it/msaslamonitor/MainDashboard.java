@@ -141,7 +141,7 @@ public class MainDashboard extends ActionBarActivity {
                 //TODO aTask.execute(""+Singletons.serverip);
                 //real world environment, read real values
                 if(Singletons.simulatedTimeStep==1){
-                    aTask.execute("8.8.8.8");
+                    aTask.execute("51.254.137.204");
                     activeTasks.add(this);
                     activeTasks.add(aTask);
                     //launch speedtest (demo image)

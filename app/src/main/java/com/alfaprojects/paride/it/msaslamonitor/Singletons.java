@@ -53,7 +53,7 @@ public class Singletons {
     public static int     scalingfactor                   =     900;
     public static int     simulatedTimeStep               =     900000;
     public static Context anApplicationContext;
-    public static String serverip   =   "192.168.43.227";
+    public static String serverip   =   "51.254.137.204";
     public static String userEmailAddress;
     public static String GCMToken;
     private static AlarmSerializer sqLiteSerializer=null;

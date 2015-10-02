@@ -54,7 +54,7 @@ public class Decisor {
 				if(i==dayOfWeekNow){ //implicit: dayOfWeekNow!=dayOfWeekLater so i check for the whole initial day
 					for(int j=quarterOfDayNow;j<96;j++){
 						int value	=	decide(battery_now,wifi_now,this.batterymatrix[i][j],this.wifimatrix[i][j]);
-						if(value	==	0){
+						if(value	==	1){
 							return value;
 						}
 					}
@@ -63,7 +63,7 @@ public class Decisor {
 				else{
 					for(int j=0;j<96;j++){
 						int value	=	decide(battery_now,wifi_now,this.batterymatrix[i][j],this.wifimatrix[i][j]);
-						if(value	==	0){
+						if(value	==	1){
 							return value;
 						}
 					}
@@ -73,7 +73,7 @@ public class Decisor {
 				if(i==dayOfWeekLater){	//last day, i check from 00:00 to the final quarter of hour
 					for(int j=0;j<=quarterOfDayLat;j++){
 						int value	=	decide(battery_now,wifi_now,this.batterymatrix[i][j],this.wifimatrix[i][j]);
-						if(value	==	0){
+						if(value	==	1){
 							return value;
 						}
 					}
@@ -82,7 +82,7 @@ public class Decisor {
 				else{
 					for(int j=0;j<96;j++){
 						int value	=	decide(battery_now,wifi_now,this.batterymatrix[i][j],this.wifimatrix[i][j]);
-						if(value	==	0){
+						if(value	==	1){
 							return value;
 						}
 					}
@@ -95,7 +95,7 @@ public class Decisor {
 				if(dayOfWeekNow==dayOfWeekLater){
 					for(int j=quarterOfDayNow;j<=quarterOfDayLat;j++){
 						int value	=	decide(battery_now,wifi_now,this.batterymatrix[i][j],this.wifimatrix[i][j]);
-						if(value	==	0){
+						if(value	==	1){
 							return value;
 						}
 					}
@@ -103,7 +103,7 @@ public class Decisor {
 				else if(i==dayOfWeekNow){ //implicit: dayOfWeekNow!=dayOfWeekLater so i check for the whole initial day
 					for(int j=quarterOfDayNow;j<96;j++){
 						int value	=	decide(battery_now,wifi_now,this.batterymatrix[i][j],this.wifimatrix[i][j]);
-						if(value	==	0){
+						if(value	==	1){
 							return value;
 						}
 					}
@@ -111,7 +111,7 @@ public class Decisor {
 				else if(i==dayOfWeekLater){	//last day, i check from 00:00 to the final quarter of hour
 					for(int j=0;j<=quarterOfDayLat;j++){
 						int value	=	decide(battery_now,wifi_now,this.batterymatrix[i][j],this.wifimatrix[i][j]);
-						if(value	==	0){
+						if(value	==	1){
 							return value;
 						}
 					}
@@ -119,7 +119,7 @@ public class Decisor {
 				else{
 					for(int j=0;j<96;j++){
 						int value	=	decide(battery_now,wifi_now,this.batterymatrix[i][j],this.wifimatrix[i][j]);
-						if(value	==	0){
+						if(value	==	1){
 							return value;
 						}
 					}
@@ -127,7 +127,7 @@ public class Decisor {
 			}
 		}
 
-		return 1;
+		return 0;
 	}
 	
 	//uso interno, NON usare esplicitamente

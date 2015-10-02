@@ -3,12 +3,14 @@ package com.alfaprojects.paride.it.msaslamonitor;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -38,7 +40,11 @@ public class LoginTask extends AsyncTask {
         try {
             HttpResponse response = httpClient.execute(httpPost);
             // write response to log
-            Log.d("POSTTASK:PostResponse:", response.toString());
+            Log.d("POSTTASK: Login PostResponse:", response.toString());
+            // write response to log
+            HttpEntity responseEntity = response.getEntity();
+            String responseString = EntityUtils.toString(responseEntity, "UTF-8");
+            System.out.println("POSTTASK:LoginPostResponse token:" + responseString);
         } catch (ClientProtocolException e) {
             // Log exception
             e.printStackTrace();

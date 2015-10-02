@@ -26,7 +26,6 @@ public class TaskInstance extends Task {
 		long endseconds		=	startDate.getTime()+(expiration*1000);	//library uses milliseconds
 		this.expirationDate	=	new Date(endseconds);
 		this.endDate		=	endDate;
-		//TODO setExpirationDate
 	}
 
 	public Date getStartDate() {

@@ -191,57 +191,24 @@ public class MainDashboard extends ActionBarActivity {
                 if (isCancelled()) return null;
                 //System.out.println("Dati elaborati wifi "+aService.isWifi+" speed "+speedTestTask.result+" RTT "+aTask.RTT );
                 if(aScheduler ==null){
-
-                    //TODO REMOVE TEST TASK
-                    int random  = (int)GeneratoreCasuale.randInt(900,72000);
-                    testTask   =   new Task(1,"sumA/cardA",random,0.5);
-                    testTask.setHeuristic("A", 10000, 1);
-                    publishCPUTimes(testTask.heurstics,testTask.keys);
-                    ArrayList<TaskInstance> tasks   =   new ArrayList<>();
-                    for(int i=0;i<20;i++){
-                        TaskInstance atask = new TaskInstance(testTask.getId(),testTask.getFormula(),testTask.getExpiration(),testTask.getThreshold(), Singletons.currentSimulatedTime,Singletons.currentSimulatedTime,testTask.getHeurstics(),testTask.getKeys());
-                        atask.debugTag     =    "kind1";
-                        int k=i+1;//(int)GeneratoreCasuale.randInt(1,50000);
-                        double[] testdata	=	new double[k];
-                        for(int j=0;j<k;j++){
-                            testdata[j]			=	k%50;
-                        }
-                        atask.addToRawData("A", testdata);;
-                        tasks.add(atask);
-                    }
                     Log.i("shellservice","non esiste scheduler creo");
-                    Log.i("ShellServicee","test task ha "+testTask.keys.length+" chiavi e valori "+testTask.heurstics.size());
                     int[][] hBatteryMatrix	=	pattern.getHighBatteryMatrix(pattern.startDate, pattern.finishDate);
                     int[][] hWifiMatrix      =   pattern.getHighWifiMatrix(pattern.startDate, pattern.finishDate);
                     Decisor testd 	=	 new Decisor(hBatteryMatrix,hWifiMatrix);
+                    ArrayList<TaskInstance> tasks   =   new ArrayList<>();
                     aScheduler  =   new KPIScheduler(device,tasks,testd,120000,this.aContext);
+                    FakeTaskLauncher fakeTaskLauncher   =   new FakeTaskLauncher(aScheduler,this.aDashBoard);
+                    if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB)
+                        fakeTaskLauncher.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    else
+                        fakeTaskLauncher.execute();
+                    while(aScheduler.getTaskListSize()==0){
+                        SystemClock.sleep(3000);
+                    }
                     if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB)
                         aScheduler.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                     else
                         aScheduler.execute();
-                }
-
-                else{
-                    int random;
-                    Log.i("shellservice","esiste scheduler, aggiungo a task esistenti");
-                    Log.i("ShellServicee","giro successivo test task ha "+testTask.keys.length+" chiavi e valori "+testTask.heurstics.size());
-                    Task oldTask    =   testTask;
-                    for(int i=0;i<2;i++){
-                        random  = GeneratoreCasuale.randInt(900,1000*60*60*24*20);
-                        testTask   =   new Task(1,"sumA/cardA",random,0.5);
-                        testTask.heurstics  =   oldTask.heurstics;
-                        testTask.keys       =   oldTask.keys;
-                        TaskInstance atask = new TaskInstance(testTask.getId(),testTask.getFormula(),testTask.getExpiration(),testTask.getThreshold(), Singletons.currentSimulatedTime,Singletons.currentSimulatedTime,oldTask.getHeurstics(),oldTask.getKeys());
-                        atask.debugTag     =    "kind2";
-                        int k=1+GeneratoreCasuale.randInt(1,5000);//(int)GeneratoreCasuale.randInt(1,50000);
-                        double[] testdata	=	new double[k];
-                        for(int j=0;j<k;j++){
-                            testdata[j]			=	j%50;
-                        }
-                        atask.addToRawData("A", testdata);;
-                        aScheduler.addToTaskList(atask);
-                    }
-                    Log.i("shellservice","esiste scheduler, totale task esistenti "+aScheduler.getTaskListSize());
                 }
                 SystemClock.sleep(Singletons.getInSimulatedtime(30000));
                 ShellService newService =   new ShellService(this.aDashBoard,device,tv);
@@ -569,9 +536,11 @@ public class MainDashboard extends ActionBarActivity {
 
         //TODO REPLACE WITH REAL DATA
         OffloadingFunction  afunction =   new OffloadingFunction(deviceData.maxCpuPower,idlepower,RTT/1000,3,txpower);//TODO TEST
+        String legend   =   "Local time equivalent for offloading time (energy)\n";
         for(int i=0;i<3;i++){
             double test = afunction.getLocalComputationTimeForOffloadingTime((i*8)/result);
             System.out.println("Valore per "+i+" "+test);
+            legend  =   legend+i+"s (tx) = "+test+"s local\n";
             LinePoint p = new LinePoint();
             p.setX(i);
             p.setY(test);
@@ -580,6 +549,9 @@ public class MainDashboard extends ActionBarActivity {
                 upperbound  =   test;
             }
         }
+        legend  =   legend+"if local effective time is less than compute \n else offload";
+        TextView legendtv =   (TextView)findViewById(R.id.tvLegend);
+        legendtv.setText(legend);
         LineGraph li = (LineGraph)findViewById(R.id.graph);
         li.removeAllLines();
         li.addLine(l);

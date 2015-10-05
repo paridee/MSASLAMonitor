@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -57,6 +58,10 @@ public class Singletons {
     public static String userEmailAddress;
     public static String GCMToken;
     private static AlarmSerializer sqLiteSerializer=null;
+    private static GeneratoreCasuale paretogenerator    =   GeneratoreCasuale.Pareto;
+    private static Random randomGen =   new Random(System.currentTimeMillis());
+
+
 
     public static String getStringFromDate(Date aDate){
         java.text.DateFormat df = new java.text.SimpleDateFormat("dd/MM/yyyy hh:mm", Locale.ITALY);
@@ -373,12 +378,19 @@ public class Singletons {
         }
         System.out.println("Singletons.java simulating connevtivity environment wifi availability " + data.wifi + " signal level " + data.wifilevel);
         dashboard.updateWifiLevel(data);
-        int dlSimulatedBW   =       GeneratoreCasuale.randInt(100,1000000);
-        int ulSimulatedBW   =       GeneratoreCasuale.randInt(20,100000);
+        int dlSimulatedBW   =       100000+(int)(25000*(randomGen.nextGaussian()));//gaussiana ha media 0 e varianza 1, +4 rende valori "sempre"positivi (vd grafico dist)"
+        int ulSimulatedBW   =       40000+(int)(10000*(randomGen.nextGaussian()));
+        if(dlSimulatedBW<0){
+            dlSimulatedBW   =   1;
+        }
+        if(ulSimulatedBW<0){
+            ulSimulatedBW   =   1;
+        }
         data.bandwidthDL    =       (double)dlSimulatedBW/100000;
         data.bandwidthUL    =       (double)ulSimulatedBW/100000;
         updateBWTextViews(data);
-        int dadoping        =    GeneratoreCasuale.randInt(1,10000);
+        double dadoping        =    paretogenerator.getRandom(1, 100);
+        data.RTT  =   dadoping;
         updateTVRTT(dadoping,data," test ");
     }
 
@@ -407,6 +419,5 @@ public class Singletons {
             pingView.setTextColor(Color.parseColor("#99CC00"));
         }
         pingView.setText("RTT "+endpoint+" "+value+"ms");
-        data.RTT  =   value;
     }
 }

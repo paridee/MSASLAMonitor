@@ -59,7 +59,8 @@ public class AlarmListActivity extends ActionBarActivity {
                     testObj.put("to",Singletons.GCMToken);
                     JSONObject innerObj =   new JSONObject();
                     innerObj.put("message","task di test numero "+i);
-                    TaskInstance aTask  =   new TaskInstance(i,null,i*1000,i+3.2,new Date(),new Date(),null,null);
+                    Date end    =   new Date(System.currentTimeMillis()+(24*60*60*1000));
+                    TaskInstance aTask  =   new TaskInstance(i,null,i*1000,i+3.2,new Date(),end,null,null);
                     innerObj.put("json", aTask.generateJson());
                     testObj.put("data",innerObj);
                     TestMessageTask sendTask    =   new TestMessageTask(testObj.toString());

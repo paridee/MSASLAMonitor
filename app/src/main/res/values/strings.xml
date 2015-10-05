@@ -15,4 +15,6 @@
     <string name="btnEmail">Confirm</string>
     <string name="title_activity_alarm_list">AlarmListActivity</string>
     <string name="alarmList">Your alarm list</string>
+    <string name="timePerElement">Sample elaboration time per element (size growing)</string>
+    <string name="offloadBreakeven">Trasmission time for offloading breakeven</string>
 </resources>

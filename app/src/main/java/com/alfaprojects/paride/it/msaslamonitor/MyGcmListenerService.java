@@ -31,7 +31,7 @@ import com.google.android.gms.gcm.GcmListenerService;import java.lang.Override;i
 public class MyGcmListenerService extends GcmListenerService {
 
     private static final String TAG = "MyGcmListenerService";
-
+    private static int notificationProgressive  =   0;
     /**
      * Called when message is received.
      *
@@ -95,7 +95,6 @@ public class MyGcmListenerService extends GcmListenerService {
 
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-        notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+        notificationManager.notify(notificationProgressive++ /* ID of notification */, notificationBuilder.build());
     }
 }

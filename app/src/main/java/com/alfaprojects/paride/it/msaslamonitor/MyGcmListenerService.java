@@ -28,6 +28,10 @@ import android.util.Log;
 
 import com.google.android.gms.gcm.GcmListenerService;import java.lang.Override;import java.lang.String;//import gcm.play.android.samples.com.gcmquickstart.MainActivity;import gcm.play.android.samples.com.gcmquickstart.R;
 
+/**
+ * service that listens new messages from Google Cloud messenger
+ */
+
 public class MyGcmListenerService extends GcmListenerService {
 
     private static final String TAG = "MyGcmListenerService";

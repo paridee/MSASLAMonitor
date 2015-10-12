@@ -37,7 +37,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Date;
 
-
+/*
+this class implements the alarm list activity
+ */
 public class AlarmListActivity extends ActionBarActivity {
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
@@ -51,8 +53,8 @@ public class AlarmListActivity extends ActionBarActivity {
         AlarmSerializer dbSerializer = Singletons.getDBSerializer(this.getApplicationContext());
         dbSerializer.open();
         ArrayList<TaskInstance> tasks   =   dbSerializer.getAllAlarms();
+        //TESTING PURPOSE, if empty fills with fake entries
         if(tasks.size()==0){
-            //TODO TESTING
             for(int i=0;i<4;i++){
                 JSONObject testObj  =   new JSONObject();
                 try {

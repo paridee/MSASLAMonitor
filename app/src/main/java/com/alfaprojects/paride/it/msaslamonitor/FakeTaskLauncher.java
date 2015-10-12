@@ -26,11 +26,10 @@ public class FakeTaskLauncher extends AsyncTask {
         super.onPreExecute();
         //task is average, i will reuse heuristics also for the second one
         firstTestTask   =   new Task(1,"sumA/cardA",1,0.5); //fake expiration, will be replaced in instances
-        firstTestTask.setHeuristic("A", 10000, 1);
+        firstTestTask.setHeuristic("A", 10000, GeneratoreCasuale.Pareto);
         mainDashboard.publishCPUTimes(firstTestTask.heurstics, firstTestTask.keys);
         secondTestTask  =   new Task(2,"sumA/cardA",1,0.5);
-        secondTestTask.heurstics    =   firstTestTask.heurstics;
-        secondTestTask.keys         =   firstTestTask.keys;
+        secondTestTask.setHeuristic("A", 10000, GeneratoreCasuale.Exponential);
     }
 
     @Override

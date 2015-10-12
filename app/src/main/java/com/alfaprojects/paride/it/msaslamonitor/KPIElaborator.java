@@ -67,21 +67,17 @@ public class KPIElaborator{
         double RTTms    =   data.RTT/1000;
         OffloadingFunction myOffloadingFunction =   new OffloadingFunction(data.maxCpuPower,idlepower,RTTms,data.scalingfactor,txpower);
         String json     =   subject.generateJson();
-        //TODO
-        //TODO
-        //TODO misura header HTTP per il messaggio per calcolare il tempo di trasmissione
-        int messagesize =   json.length();//TODO +httpheader
+        int messagesize =   json.length();
         System.out.println("KPIELABORATOR calcolo dati da trasmettere ");
         double localtime    =   subject.calculateHeuristicTime()/1000;   //divide 1000 seconds!!!
         double numerator    =   (double)(messagesize*8)/(1024*1024);
         System.out.println("KPIELABORATOR numeratore "+numerator);
-        double txtime               =   (numerator)/data.bandwidthUL;//TODO speedtest uplink! TIME IN SECONDS ASSHOLE!
+        double txtime               =   (numerator)/data.bandwidthUL;
         double maxlocaltime         =   myOffloadingFunction.getLocalComputationTimeForOffloadingTime(txtime);
         double sizeforoffloading    =   (maxlocaltime*data.bandwidthUL)/8;
         System.out.println("KPIELABORATOR  valori trovati: localtime "+localtime+" txtime "+txtime+" per lunghezza messaggio "+messagesize+" maxlocaltime "+maxlocaltime+" maximum data size for offloading "+sizeforoffloading+" MB numero elementi "+subject.getDataSize());
         double saving   =   (localtime*data.maxCpuPower)-(myOffloadingFunction.calculateOffloadingConsumption(txtime,localtime));
         if(localtime>maxlocaltime){
-            //TODO OFFLOAD
             Singletons.setOffloadedTasks();
             Singletons.setSavedEnergy((int) saving);
             System.out.println("KPIELABORATOR  vado in offload");

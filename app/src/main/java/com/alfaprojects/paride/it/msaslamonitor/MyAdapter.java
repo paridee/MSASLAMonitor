@@ -11,6 +11,7 @@ import java.util.ArrayList;
 
 /**
  * Created by paride on 25/09/15.
+ * adapter for alarmlist
  */
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     private ArrayList<TaskInstance> mDataset;

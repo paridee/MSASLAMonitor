@@ -37,7 +37,7 @@ public class DeviceData {
     public Object cellularidle  =   0;
     public double cellularmaxidle  =   0;
     public double cellularmaxpower  =   0;
-    public double scalingfactor =   1;
+    public double scalingfactor =   8;
     public double wifilevel;
     public double batterylevel  =   0;
     public double highbatterythreshold  =   30;

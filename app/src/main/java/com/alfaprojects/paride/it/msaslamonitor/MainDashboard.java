@@ -55,6 +55,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /*
+this is the main dashboard class,
+contains all the UI elements ad the logic for 2 working modes, launches also the alarm list activity
 l'update del grafico viene fatto dopo lo speedtest! quindi dopo lo speedtest (che e' l'operazione piu'
 lenta) ho tutti i dati per continuare il processamento
  */
@@ -73,6 +75,7 @@ public class MainDashboard extends ActionBarActivity {
     CardView connCard;
     CardView taskCard;
 
+    //receiver for battery level change level
     private BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver(){
         @Override
         public void onReceive(Context ctxt, Intent intent) {
@@ -115,6 +118,7 @@ public class MainDashboard extends ActionBarActivity {
 
         }
 
+        //updates UI
         @Override
         protected void onProgressUpdate(Object[] values) {
             super.onProgressUpdate(values);
@@ -168,24 +172,6 @@ public class MainDashboard extends ActionBarActivity {
                         device.bandwidthDL  =   0.0000001;
                     }
                 }
-
-
-
-
-/*
-                //TODO TEST DATI SIMULATI
-                double randomRTT    =   GeneratoreCasuale.randInt(50,10000);
-                randomRTT           =   randomRTT/10;
-                double randomDL     =   GeneratoreCasuale.randInt(10,10000);
-                randomDL            =   randomDL/100;
-                double randomUL     =   GeneratoreCasuale.randInt(1,3);
-                randomUL            =   randomDL/100;
-                this.device.RTT     =   randomRTT;
-                this.device.bandwidthDL     =   randomDL;
-                this.device.bandwidthUL     =   randomUL;
-                this.publishProgress();
-                Singletons.updateGraph(this.device);*/
-
 
                 //start another service like this after 10 seconds than die
                 if (isCancelled()) return null;
@@ -387,31 +373,6 @@ public class MainDashboard extends ActionBarActivity {
             }
         }, new IntentFilter(WifiManager.RSSI_CHANGED_ACTION));
         pattern  =   new UsePattern("log.txt",30,-80,getApplicationContext());
-
-
-        /*
-        ArrayList<Bar> points = new ArrayList<Bar>();
-        Bar d = new Bar();
-        d.setColor(Color.parseColor("#99CC00"));
-        d.setName(this.getString(R.string.wifiPower));
-        d.setValue(10);
-        if(this.radiopower.getClass().equals(Double[].class)){
-            System.out.println("ARRAY");
-            Double[] radio  =   (Double[])this.radiopower;
-            for(int i=0;i<radio.length;i++){
-                Bar d2 = new Bar();
-                d2.setColor(Color.parseColor("#FFBB33"));
-                d2.setName(this.getString(R.string.radioPower) + " " + i);
-                d2.setValue((radio[i].floatValue()));
-                points.add(d);
-                points.add(d2);
-            }
-        }
-        else if(this.radiopower.getClass().equals(Double.class)){
-            System.out.println("VALORE SINGOLO");
-        }
-        BarGraph g = (BarGraph)findViewById(R.id.graph2);
-        g.setBars(points);*/
     }
 
     public void updateWifiLevel(DeviceData data){
@@ -527,14 +488,12 @@ public class MainDashboard extends ActionBarActivity {
             txpower     =   deviceData.wifipower;
         }
         else{
-            //TODO
             idlepower   =   deviceData.cellularmaxidle;
             txpower     =   deviceData.cellularmaxpower;
         }
         Line l = new Line();
         l.setColor(Color.parseColor("#FFBB33"));
 
-        //TODO REPLACE WITH REAL DATA
         OffloadingFunction  afunction =   new OffloadingFunction(deviceData.maxCpuPower,idlepower,RTT/1000,3,txpower);//TODO TEST
         String legend   =   "Local time equivalent for offloading time (energy)\n";
         for(int i=0;i<3;i++){
@@ -581,6 +540,8 @@ public class MainDashboard extends ActionBarActivity {
         this.enableViews(false);
         final FloatingActionsMenu     choicemenu      =   (FloatingActionsMenu)this.findViewById(R.id.famChoice);
         aService.aContext   =   this.getApplicationContext();
+
+        //configures FloatingActionButton overlay
         FloatingActionButton    standardButton  =   (FloatingActionButton)this.findViewById(R.id.fabStandard);
         standardButton.setIcon(R.drawable.ic_animal55);
         FloatingActionButton    emulationButton =   (FloatingActionButton)this.findViewById(R.id.fabEmulation);

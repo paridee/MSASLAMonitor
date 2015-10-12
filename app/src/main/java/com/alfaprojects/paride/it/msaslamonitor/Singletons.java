@@ -24,6 +24,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by paride on 01/07/15.
+ * this class contains all the project's singletons
  */
 public class Singletons {
     private static int processedTasks       =   0;
@@ -32,22 +33,7 @@ public class Singletons {
     private static int savedEnergy          =   0;
     private static int postponedTask        =   0;
     private static ReentrantLock valueslock        =   new ReentrantLock();
-    //public static double RTT=-1;
-    //public static double bandwidthDL=-1;
-    //public static double bandwidthUL=-1;
-    //public static long   mobilespeedparameter=0;
-    //public static long   cloudspeedparameter=8;
-    //public static boolean wifi=false;
     public static MainDashboard dashboard=null;
-    //public static double wifipower     =   0;
-    //public static Object radiopower    =   null;
-    //public static Object cpupower      =   null;
-    //public static Object cpuspeeds     =   null;
-    //public static double maxCpuPower   =   0;
-    //public static double wifiidle      =   0;
-    //public static Object cellularidle  =   0;
-    //public static double cellularmaxidle  =   0;
-    //public static double cellularmaxpower  =   0;
     public static Date    currentSimulatedTime            =   new Date();
     public static double  currentSimulatedBattery         =     1.0;
     public static int     currentSimulatedWifilevel       =     -127;
@@ -62,63 +48,105 @@ public class Singletons {
     private static Random randomGen =   new Random(System.currentTimeMillis());
 
 
-
+    /**
+     * auxiliary method to get string from date object
+     * @param aDate date to be converted
+     * @return string with the date
+     */
     public static String getStringFromDate(Date aDate){
         java.text.DateFormat df = new java.text.SimpleDateFormat("dd/MM/yyyy hh:mm", Locale.ITALY);
         return  df.format(aDate);
     }
 
-
+    /**
+     * returns the value of total task instances processed
+     * @return
+     */
     public static int getLocalTasks() {
         return localTasks;
     }
 
+    /**
+     * sets the total number of task instances processed
+     */
     public static void setLocalTasks() {
         valueslock.lock();;
         Singletons.localTasks = localTasks+1;
         valueslock.unlock();
     }
 
+    /**
+     * gets the number of offloaded tasks
+     * @return
+     */
     public static int getOffloadedTasks() {
         return offloadedTasks;
     }
 
+    /**
+     * increase the number of offloaded tasks counter
+     */
     public static void setOffloadedTasks() {
         valueslock.lock();
         Singletons.offloadedTasks = offloadedTasks+1;
         valueslock.unlock();
     }
 
+    /**
+     * gets the number of postponed tasks instances
+     */
     public static int getPostponedTask() {
         return postponedTask;
     }
 
+    /**
+     * increases the counter for postponed tasks
+     */
     public static void setPostponedTask() {
         valueslock.lock();
         Singletons.postponedTask = postponedTask+1;
         valueslock.unlock();
     }
 
+    /**
+     * returnes the value of total processed tasks counter
+     * @return
+     */
     public static int getProcessedTasks() {
         return processedTasks;
     }
 
+    /**
+     * increases the counter for total processed tasks
+     */
     public static void setProcessedTasks() {
         valueslock.lock();
         Singletons.processedTasks = processedTasks+1;
         valueslock.unlock();
     }
 
+    /**
+     * gets the value of saved energy
+     * @return
+     */
     public static int getSavedEnergy() {
         return savedEnergy;
     }
 
+    /**
+     * increases the value for the counter of saved energy
+     * @param savedEnergy delta
+     */
     public static void setSavedEnergy(int savedEnergy) {
         valueslock.lock();
         Singletons.savedEnergy = savedEnergy+Singletons.savedEnergy;
         valueslock.unlock();
     }
 
+    /**
+     * updates the offloading graph
+     * @param data
+     */
     public static void updateGraph(DeviceData data) {
         if(data.RTT!=-1&&data.bandwidthUL!=-1)
             dashboard.updateGraph(data.wifi,data.bandwidthUL,data.RTT,data);
@@ -132,6 +160,9 @@ public class Singletons {
         return (milliseconds/scalingfactor);
     }
 
+    /**
+     * advances simulated time (hardcoded timestep)
+     */
     public static void advanceSimulatedTime(){
         if(simulatedTimeStep==1){
             currentSimulatedTime    =   new Date();
@@ -146,6 +177,7 @@ public class Singletons {
     }
 
 
+    //not used, in this case scaling factor is hardcoded after experimental tests
     public static double calculatespeedparameter(DeviceData device){   //parameter used as reference for scaling factor, run on both sides
         //TODO needed to be extended with a task parameter and a reference test
         long returnvalue=0;
@@ -174,11 +206,20 @@ public class Singletons {
         return returnvalue;
     }
 
+    /**
+     * returns actual scaling factor
+     * @param device
+     * @return
+     */
     public static double getScalingFactor(DeviceData device){
         double value    =   (double)device.mobilespeedparameter/(double)device.cloudspeedparameter;
         return value;
     }
 
+    /**
+     * read the power profile data
+     * @param deviceData
+     */
     public static void setPowerProfile(DeviceData deviceData){
         try {
             Class<?> powerProfileClazz = Class.forName("com.android.internal.os.PowerProfile");
@@ -293,6 +334,9 @@ public class Singletons {
 
     }
 
+    /**
+     * updates the text views in UI
+     */
     public static void updateTasksTextView() {
 
         TextView tvTotalTasks       =   (TextView)  dashboard.findViewById(R.id.tvTotalTasks);
@@ -313,7 +357,7 @@ public class Singletons {
             tvPostponedTasks.setText("Total postponed tasks: "+Singletons.getPostponedTask());
         }
         if(tvSavings!=null){
-            tvSavings.setText("Total energy saving: " + Singletons.getSavedEnergy());
+            tvSavings.setText("Total energy saving: " + Singletons.getSavedEnergy()+" mAs");
         }
     }
 
@@ -330,6 +374,10 @@ public class Singletons {
         return sqLiteSerializer;
     }
 
+    /**
+     * simulates battery drain
+     * @param data
+     */
     public static void advanceBatterySimulation(DeviceData data){
         double actualLevel  =   data.batterylevel;
         if(actualLevel<=2){
@@ -364,7 +412,7 @@ public class Singletons {
         pg.addSlice(slice);
     }
 
-    //simulates connectivity environment, wifi availability and //// TODO: 29/09/15 bandwidth
+    //simulates connectivity environment, wifi availability and ////
     public static void advanceConnectivitySimulation(DeviceData data){
         int dado        =    GeneratoreCasuale.randInt(0,10);
         if(dado<2){
@@ -408,6 +456,12 @@ public class Singletons {
         }
     }
 
+    /**
+     * updates ping textview
+     * @param value
+     * @param data
+     * @param endpoint
+     */
     public static void updateTVRTT(double value,DeviceData data,String endpoint) {
         TextView pingView   =   ((TextView)dashboard.findViewById(R.id.connection2));
         if(value>200)

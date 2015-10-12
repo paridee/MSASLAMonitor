@@ -31,6 +31,10 @@ public class KPIScheduler extends AsyncTask {
         this.appContext =   appContext;
     }
 
+    /**
+     * adds a task to the tasklist
+     * @param aTask
+     */
     public void addToTaskList(TaskInstance aTask){
         taskListLock.lock();
         mytasks.add(aTask);
@@ -43,6 +47,11 @@ public class KPIScheduler extends AsyncTask {
         taskListLock.unlock();
         return size;
     }
+
+    /**
+     * updates the UI
+     * @param values
+     */
     @Override
     protected void onProgressUpdate(Object[] values) {
         super.onProgressUpdate(values);
@@ -62,7 +71,6 @@ public class KPIScheduler extends AsyncTask {
     @Override
     protected Object doInBackground(Object[] params) {
         while(true){
-            System.out.println("KpiScheduler m'addormo pe' 2 minuti cioe " + Singletons.getInSimulatedtime(this.polling) + " millisecondi");
             SystemClock.sleep(Singletons.getInSimulatedtime(this.polling));
 
             while(waitp){
@@ -73,7 +81,7 @@ public class KPIScheduler extends AsyncTask {
                 System.out.println("KpiScheduler ASPETTO DEVICEDATA RTT "+deviceData.RTT+" UL "+deviceData.bandwidthUL+" DL "+deviceData.bandwidthDL);
             }
             System.out.println("KpiScheduler OTTENUTI DEVICEDATA");
-            System.out.println("KpiScheduler s'e' svejatoooooooooooo lunghezza lista task " + mytasks.size());
+            System.out.println("KpiScheduler s'e' svegliato lunghezza lista task " + mytasks.size());
             if(Singletons.simulatedTimeStep!=1){
                 Object[]    args    =   new Object[1];  //stub argument,signals that a simulation advance is needed
                 args[0]             =   true;

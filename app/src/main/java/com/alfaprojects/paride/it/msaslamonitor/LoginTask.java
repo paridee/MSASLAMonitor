@@ -17,6 +17,7 @@ import java.io.UnsupportedEncodingException;
 
 /**
  * Created by paride on 30/09/15.
+ * calls the remote service for login
  */
 public class LoginTask extends AsyncTask {
     String jsonString;

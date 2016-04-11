@@ -22,7 +22,8 @@ import java.io.UnsupportedEncodingException;
 public class LoginTask extends AsyncTask {
     String jsonString;
 
-    public LoginTask(String json){
+    public LoginTask(String json)
+    {
         jsonString  =   json;
     }
 
